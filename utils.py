@@ -2,6 +2,7 @@ from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.spatial.distance import pdist
 import numpy as np
 from matplotlib import pyplot as plt
+import networkx as nx
 
 def plot_stable_states(df, name, show=False):
     
@@ -74,3 +75,30 @@ def identify_active_nodes(df):
         active_nodes = df[col].sum()
         active_node_names = [str(node) for node in df.index[df[col] == True]]
         print(f"State {col}: {active_nodes} active nodes - {', '.join(active_node_names)}")
+        
+
+def draw_interaction_graph(graph, name, show=False):    
+    plt.figure(figsize=(10, 8))  
+    # pos = nx.spring_layout(graph, seed=42)  
+    pos = nx.kamada_kawai_layout(graph)
+    nx.draw_networkx_nodes(graph, pos, node_size=1000, node_color="lightblue", edgecolors="black")
+
+    activation_edges = []
+    inhibition_edges = []
+    
+    for u, v, data in graph.edges(data=True):
+        if 'sign' in data:
+            if data['sign'] > 0:
+                activation_edges.append((u, v)) 
+            elif data['sign'] < 0:
+                inhibition_edges.append((u, v)) 
+
+    nx.draw_networkx_edges(graph, pos, edgelist=activation_edges, edge_color="green", arrows=True, width=2)
+    nx.draw_networkx_edges(graph, pos, edgelist=inhibition_edges, edge_color="red", arrows=True, width=2, style="dashed")
+    nx.draw_networkx_labels(graph, pos, font_size=10, font_weight="bold")
+
+    plt.title("Influence Network")
+    plt.savefig(f'plots/{name}_interaction_graph.png', dpi=300)
+    if show:
+        plt.show()
+    plt.close()

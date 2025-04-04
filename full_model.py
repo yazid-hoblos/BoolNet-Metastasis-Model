@@ -5,7 +5,9 @@ import pandas as pd
 from metastasisModel import MetastasisModel
 
 full_model = MetastasisModel(modular=False) 
-     
+
+draw_interaction_graph(full_model.model.interaction_graph, 'full_model')
+
 # print(met_model)
 stable = full_model.model.stable_states
 # print(tabulate(stable, headers='keys', tablefmt='dpsl'))
