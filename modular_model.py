@@ -48,7 +48,7 @@ df = pd.DataFrame(stable)
 df_T = df.T
 print(tabulate(df_T, headers='keys', tablefmt='dpsl'))
 
-stable_state_names=['HS','Apop2','Apop1','EMT2', 'EMT1','Apop4','Apop3','M2','M1']
+stable_state_names=['HS','Apop2','Apop1','Apop4','Apop3','EMT2', 'EMT1','M2','M1']
 
 plot_stable_states(df_T, stable_state_names, 'reduced_model')
 
