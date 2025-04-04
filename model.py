@@ -4,6 +4,7 @@ from sympy.abc import w, x, y, z, v
 from tabulate import tabulate
 from BooN import *
 
+from utils import *
 from sympy import symbols  
 
 AKT1, AKT2, CDH1, CDH2, CTNNB1, DKK1, ERK, GF, miR200, miR203, miR34, NICD, p21, p53, p63, p73, SMAD, SNAI1, SNAI2, TGFbeta, TWIST1, VIM, ZEB1, ZEB2, CellCycleArrest, Apoptosis, EMT, Invasion, Migration, Metastasis, DNAdamage, ECM = symbols(
@@ -80,7 +81,7 @@ df_T = df.T
 
 # check where DNAdamage is False
 # write df_T to a file
-df_T.to_csv('stable_states.csv', index=True, header=False)
+# df_T.to_csv('stable_states.csv', index=True, header=False)
 
 state_counts = []
 for col in df_T.columns:
@@ -98,5 +99,5 @@ for i, (col, count, active_vars) in enumerate(state_counts):
 
 # boon.control(frozenfalse={DNAdamage},frozentrue={ECM})
 # print(boon)
-
-print(stable_states)
+    
+plot_stable_states(df_T, stable_state_names)
