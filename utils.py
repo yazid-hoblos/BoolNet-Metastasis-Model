@@ -67,3 +67,10 @@ def handle_input_variables(stable, vars):
                 new_state = state.copy()
                 new_state[node] = True
                 stable.append(new_state)
+                
+def identify_active_nodes(df):
+    print("--- Stable states sorted by number of active nodes ---")
+    for col in df.columns:
+        active_nodes = df[col].sum()
+        active_node_names = [str(node) for node in df.index[df[col] == True]]
+        print(f"State {col}: {active_nodes} active nodes - {', '.join(active_node_names)}")
