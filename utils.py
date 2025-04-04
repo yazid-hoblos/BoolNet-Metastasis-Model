@@ -3,7 +3,7 @@ from scipy.spatial.distance import pdist
 import numpy as np
 from matplotlib import pyplot as plt
 
-def plot_stable_states(df, stable_state_names):
+def plot_stable_states(df, stable_state_names, filename):
     
     df_sorted = df.copy()
     
@@ -39,7 +39,7 @@ def plot_stable_states(df, stable_state_names):
     ax.grid(which='minor', color='black', linestyle='-', linewidth=0.5)
     
     plt.tight_layout()
-    plt.savefig('plots/stable_states_heatmap.png', dpi=300)
+    plt.savefig(f'plots/{filename}_heatmap.png', dpi=300)
     
     plt.figure(figsize=(10, 8))
     activation_freq = df_sorted.mean(axis=1).sort_values(ascending=False)
@@ -49,4 +49,4 @@ def plot_stable_states(df, stable_state_names):
     plt.ylabel('Fraction of States Active')
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.savefig('plots/node_activation_frequency.png', dpi=300)
+    plt.savefig(f'plots/{filename}_node_activation_frequency.png', dpi=300)

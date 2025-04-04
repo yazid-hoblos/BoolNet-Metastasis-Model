@@ -100,4 +100,4 @@ for i, (col, count, active_vars) in enumerate(state_counts):
 # boon.control(frozenfalse={DNAdamage},frozentrue={ECM})
 # print(boon)
     
-plot_stable_states(df_T, stable_state_names)
+plot_stable_states(df_T, stable_state_names, 'model')
