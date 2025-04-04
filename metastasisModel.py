@@ -1,6 +1,8 @@
 from sympy import symbols
 from BooN import *
 
+from utils import *
+
 class MetastasisModel:
     def __init__(self, modular=False):
         AKT1, AKT2, CDH1, CDH2, CTNNB1, DKK1, ERK, GF, miR200, miR203, miR34, NICD, p21, p53, p63, p73, SMAD, SNAI1, SNAI2, TGFbeta, TWIST1, VIM, ZEB1, ZEB2, CellCycleArrest, Apoptosis, EMT, Invasion, Migration, Metastasis, DNAdamage, ECM = symbols(
@@ -78,13 +80,15 @@ class MetastasisModel:
         self.modular = modular
         self.model = BooN(descriptor=desc)
         self.variables = self.model.variables
+        self.stable_states_df = None
     
     def __str__(self):
         return self.model.__str__()
      
-    def identify_stable_states(self, df):
+    def identify_stable_states(self):
         state_names = []
         s=self.symbols
+        df = self.stable_states_df
         CDH = s['CDH1'] if s['CDH1'] in df.index.tolist() else s['Ecadh']
         ECM_ = s['ECM'] if s['ECM'] in df.index.tolist() else s['ECMicroenv']
         for col in df.columns:
@@ -102,8 +106,49 @@ class MetastasisModel:
                 name = "M1" if state[s['DNAdamage']] else "M2"
             state_names.append(name)
         df.columns = state_names
-        df.index.name = 'Variables'
+        self.stable_states_df = df
         return df
+
+    def get_stable_states_df(self, display=False):
+        import pandas as pd
+        from tabulate import tabulate
+        stable = self.model.stable_states
+        handle_input_variables(stable, self.variables)    
+        df = pd.DataFrame(stable)
+        df = df.T
+        df = rearrange_columns(df)
+        self.stable_states_df = df
+        df = self.identify_stable_states()
+        df.index.name = 'Variables'
+        if display:
+            print(tabulate(df, headers='keys', tablefmt='dpsl'))
+        return df
+    
+    def identify_active_nodes(self):
+        if self.stable_states_df is not None:
+            identify_active_nodes(self.stable_states_df)
+        else:
+            print("Please call get_stable_states_df() first")
+            
+    def write_stable_states(self, name):
+        if self.stable_states_df is not None:
+            self.stable_states_df.astype(int).to_csv(f"data_files/{name}_stable_states.csv", index=True, header=True)
+        else:
+            print("Please call get_stable_states_df() first")
+            
+    def plot_stable_states(self, name, show=False):
+        if self.stable_states_df is not None:
+            plot_stable_states(self.stable_states_df, name, show)
+        else:
+            print("Please call get_stable_states_df() first")
+            
+    def draw_interaction_graph(self, name, split=False, interactive=False, show=False):
+        draw_interaction_graph(self.model.interaction_graph, name, show)
+        if split:
+            draw_act_inh_seperately(self.model.interaction_graph, name, show)
+        if interactive:
+            draw_network_interactive(self.model.interaction_graph, name)
+
 
             
             

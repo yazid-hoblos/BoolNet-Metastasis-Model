@@ -70,7 +70,7 @@ def handle_input_variables(stable, vars):
                 stable.append(new_state)
                 
 def identify_active_nodes(df):
-    print("--- Stable states sorted by number of active nodes ---")
+    print("\n--- Stable states sorted by number of active nodes ---")
     for col in df.columns:
         active_nodes = df[col].sum()
         active_node_names = [str(node) for node in df.index[df[col] == True]]
@@ -103,8 +103,7 @@ def draw_interaction_graph(graph, name, show=False):
         plt.show()
     plt.close()
 
-
-def draw_seperately(G, name, show=False):
+def draw_act_inh_seperately(G, name, show=False):
     G_activation = nx.DiGraph() 
     G_inhibition = nx.DiGraph()  
 
@@ -131,9 +130,12 @@ def draw_seperately(G, name, show=False):
     ax[1].set_title("Inhibition Network")
 
     plt.savefig(f'plots/{name}_split_interactions_networks.png', dpi=300)
+    if show:
+        plt.show()
+    plt.close()
 
 
-def draw_network_interactive(G, filename='network_visualization', notebook=False):
+def draw_network_interactive(G, name='network_visualization'):
     import os
     from pyvis.network import Network
 
@@ -182,11 +184,14 @@ def draw_network_interactive(G, filename='network_visualization', notebook=False
             net.add_edge(str(u), str(v), color=edge_color, title=title, 
                         width=edge_width, arrows=arrows, physics=True, group=group)
 
-    output_path = f'plots/{filename}.html'
+    output_path = f'plots/{name}_interactive_interactions_network.html'
     net.save_graph(output_path)
     print(f"Interactive network saved to {output_path}")
     
     # Optional: Display network in notebook if running in jupyter
+    from IPython import get_ipython
+    ipython = get_ipython()
+    notebook = True if ipython is not None and 'IPKernelApp' in ipython.config else False
     if notebook:
         from IPython.display import IFrame, display, HTML
         display(HTML(f'<a href="{output_path}" target="_blank">Open Network Visualization</a>'))
