@@ -81,7 +81,7 @@ df_T = df.T
 
 # check where DNAdamage is False
 # write df_T to a file
-# df_T.to_csv('stable_states.csv', index=True, header=False)
+df_T.astype(int).to_csv('stable_states.csv', index=True, header=False)
 
 state_counts = []
 for col in df_T.columns:
@@ -100,4 +100,4 @@ for i, (col, count, active_vars) in enumerate(state_counts):
 # boon.control(frozenfalse={DNAdamage},frozentrue={ECM})
 # print(boon)
     
-plot_stable_states(df_T, stable_state_names, 'model')
+# plot_stable_states(df_T, stable_state_names, 'model')

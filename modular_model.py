@@ -50,5 +50,6 @@ print(tabulate(df_T, headers='keys', tablefmt='dpsl'))
 
 stable_state_names=['HS','Apop1','Apop2','Apop4','Apop3','EMT2', 'EMT1','M2','M1']
 
-plot_stable_states(df_T, stable_state_names, 'reduced_model')
+# plot_stable_states(df_T, stable_state_names, 'reduced_model')
+df_T.astype(int).to_csv('reduced_model_stable_states.csv', index=True, header=False)
 
