@@ -5,6 +5,7 @@ from utils import *
 
 class MetastasisModel:
     def __init__(self, modular=False):
+        
         AKT1, AKT2, CDH1, CDH2, CTNNB1, DKK1, ERK, GF, miR200, miR203, miR34, NICD, p21, p53, p63, p73, SMAD, SNAI1, SNAI2, TGFbeta, TWIST1, VIM, ZEB1, ZEB2, CellCycleArrest, Apoptosis, EMT, Invasion, Migration, Metastasis, DNAdamage, ECM = symbols(
         'AKT1 AKT2 CDH1 CDH2 CTNNB1 DKK1 ERK GF miR200 miR203 miR34 NICD p21 p53 p63 p73 SMAD SNAI1 SNAI2 TGFbeta TWIST1 VIM ZEB1 ZEB2 CellCycleArrest Apoptosis EMT Invasion Migration Metastasis DNAdamage ECM')
         
@@ -83,7 +84,10 @@ class MetastasisModel:
         self.stable_states_df = None
     
     def __str__(self):
-        return self.model.__str__()
+        output = f"Number of Variables: {len(self.variables)}\n"
+        output += f"Variables: {self.variables}\n"
+        output += self.model.__str__() 
+        return output
      
     def identify_stable_states(self):
         state_names = []
@@ -102,10 +106,24 @@ class MetastasisModel:
                     name = "Apop2" if not state[ECM_] else "Apop4"
             elif state[s['EMT']] and not state[s['Metastasis']]:
                 name = "EMT1" if state[s['DNAdamage']] else "EMT2"
-            else:
+            elif state[s['Metastasis']] and state[s['Invasion']] and state[s['Migration']]:
                 name = "M1" if state[s['DNAdamage']] else "M2"
+            else:
+                name = "Novel"
             state_names.append(name)
-        df.columns = state_names
+        
+        name_counts = {}
+        unique_names = []
+        for name in state_names:
+            if name in name_counts:
+                name_counts[name] += 1
+                unique_name = f"{name}_{name_counts[name]}"
+            else:
+                name_counts[name] = 0
+                unique_name = name
+            unique_names.append(unique_name)
+            
+        df.columns = unique_names
         self.stable_states_df = df
         return df
 
@@ -148,6 +166,18 @@ class MetastasisModel:
             draw_act_inh_seperately(self.model.interaction_graph, name, show)
         if interactive:
             draw_network_interactive(self.model.interaction_graph, name)
+            
+    def control(self, frozenfalse=None, frozentrue=None):
+        s=self.symbols
+        ff=set([s[var] for var in frozenfalse]) if frozenfalse else set()
+        ft=set([s[var] for var in frozentrue]) if frozentrue else set()
+        model_replicate = MetastasisModel(modular=self.modular)
+        for var in ff:
+            model_replicate.model.desc[var]=False
+        for var in ft:
+            model_replicate.model.desc[var]=True
+        return model_replicate
+        
 
 
             

@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 import networkx as nx
 
 def plot_stable_states(df, name, show=False):
-    
     df_sorted = df.copy()
     df_sorted = df_sorted.astype(int)
     # active_gene_counts = df_sorted.sum(axis=0)
