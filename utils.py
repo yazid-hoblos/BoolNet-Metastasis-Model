@@ -13,6 +13,9 @@ def plot_stable_states(df, stable_state_names, filename):
     active_gene_counts = df_sorted.sum(axis=0)
     col_order = active_gene_counts.sort_values().index
     
+    # col_order = col_order.tolist()
+    # col_order.insert(3, col_order.pop(1))
+    
     row_linkage = linkage(pdist(df_sorted), method='average')
     row_order = dendrogram(row_linkage, no_plot=True)['leaves']
     
