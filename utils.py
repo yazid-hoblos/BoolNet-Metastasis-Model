@@ -78,7 +78,7 @@ def identify_active_nodes(df):
         
 
 def draw_interaction_graph(graph, name, show=False):    
-    plt.figure(figsize=(10, 8))  
+    plt.figure(figsize=(21, 15))  
     # pos = nx.spring_layout(graph, seed=42)  
     pos = nx.kamada_kawai_layout(graph)
     nx.draw_networkx_nodes(graph, pos, node_size=1000, node_color="lightblue", edgecolors="black")
@@ -120,7 +120,7 @@ def draw_seperately(G, name, show=False):
     G_activation.remove_nodes_from(list(nx.isolates(G_activation)))
     G_inhibition.remove_nodes_from(list(nx.isolates(G_inhibition)))
 
-    fig, ax = plt.subplots(1, 2, figsize=(14, 7))
+    fig, ax = plt.subplots(1, 2, figsize=(21, 10))
     # pos = nx.spring_layout(G)  
     pos = nx.kamada_kawai_layout(G)
 

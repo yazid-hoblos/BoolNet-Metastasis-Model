@@ -6,9 +6,9 @@ from metastasisModel import MetastasisModel
 
 full_model = MetastasisModel(modular=False) 
 
-draw_network_interactive(full_model.model.interaction_graph, filename='full_model_interactive')
-draw_seperately(full_model.model.interaction_graph, 'full_model')
-draw_interaction_graph(full_model.model.interaction_graph, 'full_model')
+# draw_network_interactive(full_model.model.interaction_graph, filename='full_model_interactive')
+# draw_seperately(full_model.model.interaction_graph, 'full_model')
+# draw_interaction_graph(full_model.model.interaction_graph, 'full_model')
 
 # print(met_model)
 stable = full_model.model.stable_states

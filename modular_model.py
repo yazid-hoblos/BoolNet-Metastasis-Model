@@ -8,9 +8,9 @@ from metastasisModel import MetastasisModel
 
 reduced_model = MetastasisModel(modular=True)
 
-draw_seperately(reduced_model.model.interaction_graph, 'reduced_model', show=False)
-draw_network_interactive(reduced_model.model.interaction_graph, filename='reduced_model_interactive')
-draw_interaction_graph(reduced_model.model.interaction_graph, 'reduced_model', show=False)
+# draw_seperately(reduced_model.model.interaction_graph, 'reduced_model', show=False)
+# draw_network_interactive(reduced_model.model.interaction_graph, filename='reduced_model_interactive')
+# draw_interaction_graph(reduced_model.model.interaction_graph, 'reduced_model', show=False)
 
 stable = reduced_model.model.stable_states
 
