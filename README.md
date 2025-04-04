@@ -1,4 +1,4 @@
-![influence_network](plots/reduced_model_interaction_graph.png)
+![influence_network](plots/reduced_model_interactions_network.png)
 
 ![heatmap](plots/full_model_stable_states_heatmap.png)
 
