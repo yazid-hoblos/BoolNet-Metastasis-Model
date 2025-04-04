@@ -102,3 +102,93 @@ def draw_interaction_graph(graph, name, show=False):
     if show:
         plt.show()
     plt.close()
+
+
+def draw_seperately(G):
+    G_activation = nx.DiGraph() 
+    G_inhibition = nx.DiGraph()  
+
+    G_activation.add_nodes_from(G.nodes())
+    G_inhibition.add_nodes_from(G.nodes())
+
+    for u, v, data in G.edges(data=True):
+        if data['sign'] > 0:
+            G_activation.add_edge(u, v, color="green")
+        elif data['sign'] < 0:
+            G_inhibition.add_edge(u, v, color="red")
+
+    G_activation.remove_nodes_from(list(nx.isolates(G_activation)))
+    G_inhibition.remove_nodes_from(list(nx.isolates(G_inhibition)))
+
+    fig, ax = plt.subplots(1, 2, figsize=(14, 7))
+    # pos = nx.spring_layout(G)  
+    pos = nx.kamada_kawai_layout(G)
+
+    nx.draw(G_activation, pos, ax=ax[0], with_labels=True, edge_color="green", node_color="lightblue")
+    ax[0].set_title("Activation Network")
+
+    nx.draw(G_inhibition, pos, ax=ax[1], with_labels=True, edge_color="red", node_color="lightblue")
+    ax[1].set_title("Inhibition Network")
+
+    plt.savefig('plots/split_interactions_networks.png', dpi=300)
+
+
+def draw_network_interactive(G, filename='network_visualization', notebook=False):
+    import os
+    from pyvis.network import Network
+
+    # os.makedirs('plots', exist_ok=True)
+    
+    net = Network(notebook=False, cdn_resources='remote', height="750px", width="100%", 
+                  bgcolor="#e8f1ff", font_color="#000c1f", 
+                  select_menu=True, filter_menu=True)
+    
+    net.toggle_hide_edges_on_drag(False)
+    net.force_atlas_2based(spring_length=100, spring_strength=0.15, 
+                           damping=0.9, gravity=-50)
+    
+    for node in G.nodes():
+        phenotypes = ['EMT', 'Metastasis', 'Apoptosis', 'CellCycleArrest']
+        special_nodes = ['p53', 'CDH1', 'DNAdamage', 'ECM', 'ECMicroenv']
+        
+        if str(node) in phenotypes:
+            color = "#ff5500"  # Orange for phenotypes
+            size = 35
+        elif str(node) in special_nodes:
+            color = "#0055ff"  # Blue for special nodes
+            size = 30
+        else:
+            color = "#888888"  # Gray for other nodes
+            size = 20 + 5 * G.degree[node]
+            
+        net.add_node(str(node), label=str(node), title=str(node), 
+                     color=color, size=size, value=G.degree[node])
+    
+    for u, v, data in G.edges(data=True):
+        if 'sign' in data:
+            if data['sign'] > 0:
+                edge_color = "#00aa00"  # Green
+                title = f"{u} activates {v}"
+                arrows = "to"
+                group = "activation"
+            else:
+                edge_color = "#cc0000"  # Red
+                title = f"{u} inhibits {v}"
+                arrows = "to;dash"
+                group = "inhibition"
+                
+            edge_width = 1 + 2 * np.sqrt(G.degree[u]) / 5
+                
+            net.add_edge(str(u), str(v), color=edge_color, title=title, 
+                        width=edge_width, arrows=arrows, physics=True, group=group)
+
+    output_path = f'plots/{filename}.html'
+    net.save_graph(output_path)
+    print(f"Interactive network saved to {output_path}")
+    
+    # Optional: Display network in notebook if running in jupyter
+    if notebook:
+        from IPython.display import IFrame, display, HTML
+        display(HTML(f'<a href="{output_path}" target="_blank">Open Network Visualization</a>'))
+        display(IFrame(output_path, width="100%", height=750))
+
