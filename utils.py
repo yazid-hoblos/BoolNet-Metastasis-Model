@@ -104,7 +104,7 @@ def draw_interaction_graph(graph, name, show=False):
     plt.close()
 
 
-def draw_seperately(G):
+def draw_seperately(G, name, show=False):
     G_activation = nx.DiGraph() 
     G_inhibition = nx.DiGraph()  
 
@@ -130,7 +130,7 @@ def draw_seperately(G):
     nx.draw(G_inhibition, pos, ax=ax[1], with_labels=True, edge_color="red", node_color="lightblue")
     ax[1].set_title("Inhibition Network")
 
-    plt.savefig('plots/split_interactions_networks.png', dpi=300)
+    plt.savefig(f'plots/{name}_split_interactions_networks.png', dpi=300)
 
 
 def draw_network_interactive(G, filename='network_visualization', notebook=False):
