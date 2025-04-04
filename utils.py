@@ -31,7 +31,7 @@ def plot_stable_states(df, stable_state_names):
     plt.colorbar(label='Node State (0=inactive, 1=active)', ticks=[0, 1], orientation='vertical')
     plt.xticks(range(len(df_sorted.columns)), col_labels, rotation=90)
     plt.yticks(range(len(df_sorted.index)), df_sorted.index)
-    plt.title('Heatmap of Boolean Network States (Sorted by Active Gene Count)')
+    plt.title('Heatmap of Boolean Network States (Sorted by Active Variables Count)')
     
     ax = plt.gca()
     ax.set_xticks(np.arange(-.5, len(df_sorted.columns), 1), minor=True)

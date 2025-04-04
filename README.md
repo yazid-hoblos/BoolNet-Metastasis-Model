@@ -1,0 +1,1 @@
+![heatmap](plots/stable_states_heatmap.png)
