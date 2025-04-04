@@ -5,12 +5,13 @@ from tabulate import tabulate
 from BooN import *
 
 from utils import *
-from sympy import symbols  
+from sympy import symbols 
+import pandas as pd 
 
 AKT1, AKT2, CDH1, CDH2, CTNNB1, DKK1, ERK, GF, miR200, miR203, miR34, NICD, p21, p53, p63, p73, SMAD, SNAI1, SNAI2, TGFbeta, TWIST1, VIM, ZEB1, ZEB2, CellCycleArrest, Apoptosis, EMT, Invasion, Migration, Metastasis, DNAdamage, ECM = symbols(
     'AKT1 AKT2 CDH1 CDH2 CTNNB1 DKK1 ERK GF miR200 miR203 miR34 NICD p21 p53 p63 p73 SMAD SNAI1 SNAI2 TGFbeta TWIST1 VIM ZEB1 ZEB2 CellCycleArrest Apoptosis EMT Invasion Migration Metastasis DNAdamage ECM')
 
-boon = BooN(descriptor={
+model = BooN(descriptor={
     AKT1: CTNNB1 & (NICD | TGFbeta | GF | CDH2) & ~p53 & ~miR34 & ~CDH1,
     AKT2: TWIST1 & (TGFbeta | GF | CDH2) & ~(miR203 | miR34 | p53),
     CDH1: ~TWIST1 & ~SNAI2 & ~ZEB1 & ~ZEB2 & ~SNAI1 & ~AKT2,
@@ -45,59 +46,44 @@ boon = BooN(descriptor={
     ECM: ECM
 })
 
-# print(boon)
-
-import pandas as pd
-# compute the stable states
-# print("- STABLE STATES -")
-stable = boon.stable_states
-
-all_nodes = set(boon.variables)
-for i,state in enumerate(stable):
-    for node in all_nodes:
-        if node not in state:
-            stable[i][node] = False
-            new_state = state.copy()
-            new_state[node] = True
-            stable.append(new_state)
-        # if node == DNAdamage:
-            # print(state[node])
-            
-
-# print(boon.stability_constraints())
-# print(len(stable))
-# for s in stable:
-#     for k, v in s.items():
-#         if v == True:
-#             s[k] = 1
-#         elif v == False:
-#             s[k] = 0
+# print(model)
+stable = model.stable_states
 # print(tabulate(stable, headers='keys', tablefmt='dpsl'))
-# print([s for s in stable if s[DNAdamage] == False])
-# boon = boon.cnf()
+
+handle_input_variables(stable, model.variables)
+            
 df = pd.DataFrame(stable)
 df_T = df.T
 # print(tabulate(df_T, headers='keys', tablefmt='dpsl'))
 
-# check where DNAdamage is False
-# write df_T to a file
-df_T.astype(int).to_csv('stable_states.csv', index=True, header=False)
-
-state_counts = []
+state_names = []
 for col in df_T.columns:
-    active_vars = [str(var) for var in df_T.index[df_T[col] == True]]
-    state_counts.append((col, len(active_vars), active_vars))
+    state = df_T[col]
+    if state[CDH1] and state.sum() == 1:
+        name = "HS"
+    elif state[Apoptosis]:
+        if state[p53]:
+            name = "Apop1" if state[ECM] == False else "Apop3"
+        else:
+            name = "Apop2" if state[ECM] == False else "Apop4"
+    elif state[EMT] and not state[Metastasis]:
+        name = "EMT1" if state[DNAdamage] == True else "EMT2"
+    else:
+        name = "M1" if state[DNAdamage] == True else "M2"
+    state_names.append(name)
+df_T.columns = state_names
+df_T.index.name = 'Variables'
 
-state_counts.sort(key=lambda x: x[1])
+df_T = rearrange_columns(df_T)
 
-stable_states = {}
-stable_state_names=['HS','Apop1','Apop2','Apop4','Apop3','EMT2','EMT1','M2','M1']
+# df_T.astype(int).to_csv('data_files/stable_states.csv', index=True, header=True)
+
 # print("\nStable states sorted by number of active nodes (least to most):")
-for i, (col, count, active_vars) in enumerate(state_counts):
-    stable_states[stable_state_names[i]] = active_vars
-    # print(f"State {i+1}: {count} active nodes - {', '.join(active_vars)}")
+# for col in df_T.columns:
+#     active_nodes = df_T[col].sum()
+#     active_node_names = [str(node) for node in df_T.index[df_T[col] == True]]
+#     print(f"State {col}: {active_nodes} active nodes - {', '.join(active_node_names)}")
+
+# plot_stable_states(df_T, 'model', show=True)
 
 # boon.control(frozenfalse={DNAdamage},frozentrue={ECM})
-# print(boon)
-    
-# plot_stable_states(df_T, stable_state_names, 'model')

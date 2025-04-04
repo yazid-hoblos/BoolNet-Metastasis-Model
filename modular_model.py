@@ -7,7 +7,7 @@ import pandas as pd
 AKT1, AKT2, Ecadh, WNT_pthw, ERK_pthw, GF, miRNA, Notch_pthw, p53, p63_73, TGFb_pthw, EMTreg, CCA, Apoptosis, EMT, Invasion, Migration, Metastasis, DNAdamage, ECMicroenv = symbols(
     'AKT1 AKT2 Ecadh WNT_pthw ERK_pthw GF miRNA Notch_pthw p53 p63_73 TGFb_pthw EMTreg CCA Apoptosis EMT Invasion Migration Metastasis DNAdamage ECMicroenv')
 
-boon = BooN(descriptor={
+reduced_model = BooN(descriptor={
     AKT1: WNT_pthw & (Notch_pthw | TGFb_pthw | GF | EMTreg) & ~miRNA & ~p53 & ~Ecadh,
     AKT2: (TGFb_pthw | GF | Notch_pthw | EMTreg) & EMTreg & ~miRNA & ~p53,
     Ecadh: ~AKT2 & ~EMTreg,
@@ -30,26 +30,36 @@ boon = BooN(descriptor={
     ECMicroenv: ECMicroenv
 })
 
-stable = boon.stable_states
+stable = reduced_model.stable_states
 
-print(len(boon.variables))
+print(len(reduced_model.variables))
 
-all_nodes = set(boon.variables)
-for i,state in enumerate(stable):
-    for node in all_nodes:
-        if node not in state:
-            stable[i][node] = False
-            new_state = state.copy()
-            new_state[node] = True
-            stable.append(new_state)
+handle_input_variables(stable, reduced_model.variables)
 
-# print(tabulate(stable, headers='keys', tablefmt='dpsl'))
 df = pd.DataFrame(stable)
 df_T = df.T
-print(tabulate(df_T, headers='keys', tablefmt='dpsl'))
+# print(tabulate(df_T, headers='keys', tablefmt='dpsl'))
 
-stable_state_names=['HS','Apop1','Apop2','Apop4','Apop3','EMT2', 'EMT1','M2','M1']
+state_names = []
+for col in df_T.columns:
+    state = df_T[col]
+    if state[Ecadh] and state.sum() == 1:
+        name = "HS"
+    elif state[Apoptosis]:
+        if state[p53]:
+            name = "Apop1" if state[ECMicroenv] == False else "Apop3"
+        else:
+            name = "Apop2" if state[ECMicroenv] == False else "Apop4"
+    elif state[EMT] and not state[Metastasis]:
+        name = "EMT1" if state[DNAdamage] == True else "EMT2"
+    else:
+        name = "M1" if state[DNAdamage] == True else "M2"
+    state_names.append(name)
+df_T.columns = state_names
+df_T.index.name = 'Variables'
 
-# plot_stable_states(df_T, stable_state_names, 'reduced_model')
-df_T.astype(int).to_csv('reduced_model_stable_states.csv', index=True, header=False)
+df_T = rearrange_columns(df_T)
 
+df_T.astype(int).to_csv('data_files/reduced_model_stable_states.csv', index=True, header=True)
+
+# plot_stable_states(df_T, 'reduced_model')
