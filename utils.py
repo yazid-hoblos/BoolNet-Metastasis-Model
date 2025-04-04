@@ -33,7 +33,7 @@ def plot_stable_states(df, name, show=False):
     ax.grid(which='minor', color='black', linestyle='-', linewidth=0.5)
     
     plt.tight_layout()
-    plt.savefig(f'plots/{name}_heatmap.png', dpi=300)
+    plt.savefig(f'plots/{name}_stable_states_heatmap.png', dpi=300)
     
     if show:
         plt.show()
@@ -98,7 +98,7 @@ def draw_interaction_graph(graph, name, show=False):
     nx.draw_networkx_labels(graph, pos, font_size=10, font_weight="bold")
 
     plt.title("Influence Network")
-    plt.savefig(f'plots/{name}_interaction_graph.png', dpi=300)
+    plt.savefig(f'plots/{name}_interactions_network.png', dpi=300)
     if show:
         plt.show()
     plt.close()
@@ -129,7 +129,7 @@ def draw_act_inh_seperately(G, name, show=False):
     nx.draw(G_inhibition, pos, ax=ax[1], with_labels=True, edge_color="red", node_color="lightblue")
     ax[1].set_title("Inhibition Network")
 
-    plt.savefig(f'plots/{name}_split_interactions_networks.png', dpi=300)
+    plt.savefig(f'plots/{name}_split_interactions_network.png', dpi=300)
     if show:
         plt.show()
     plt.close()
