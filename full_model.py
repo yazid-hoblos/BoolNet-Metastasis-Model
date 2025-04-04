@@ -2,20 +2,20 @@ from tabulate import tabulate
 
 from utils import *
 import pandas as pd 
-from model import Model
+from metastasisModel import MetastasisModel
 
-met_model = Model(modular=False) 
+full_model = MetastasisModel(modular=False) 
      
 # print(met_model)
-stable = met_model.model.stable_states
+stable = full_model.model.stable_states
 # print(tabulate(stable, headers='keys', tablefmt='dpsl'))
-handle_input_variables(stable, met_model.variables)
+handle_input_variables(stable, full_model.variables)
             
 df = pd.DataFrame(stable)
 df_T = df.T
 # print(tabulate(df_T, headers='keys', tablefmt='dpsl'))
 
-df = met_model.identify_stable_states(df_T)
+df = full_model.identify_stable_states(df_T)
 df = rearrange_columns(df)
 
 identify_active_nodes(df)

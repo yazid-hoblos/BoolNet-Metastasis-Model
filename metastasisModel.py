@@ -1,7 +1,7 @@
 from sympy import symbols
 from BooN import *
 
-class Model:
+class MetastasisModel:
     def __init__(self, modular=False):
         AKT1, AKT2, CDH1, CDH2, CTNNB1, DKK1, ERK, GF, miR200, miR203, miR34, NICD, p21, p53, p63, p73, SMAD, SNAI1, SNAI2, TGFbeta, TWIST1, VIM, ZEB1, ZEB2, CellCycleArrest, Apoptosis, EMT, Invasion, Migration, Metastasis, DNAdamage, ECM = symbols(
         'AKT1 AKT2 CDH1 CDH2 CTNNB1 DKK1 ERK GF miR200 miR203 miR34 NICD p21 p53 p63 p73 SMAD SNAI1 SNAI2 TGFbeta TWIST1 VIM ZEB1 ZEB2 CellCycleArrest Apoptosis EMT Invasion Migration Metastasis DNAdamage ECM')
@@ -75,6 +75,7 @@ class Model:
             DNAdamage: DNAdamage,
             ECM: ECM}
         
+        self.modular = modular
         self.model = BooN(descriptor=desc)
         self.variables = self.model.variables
     

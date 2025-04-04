@@ -4,9 +4,9 @@ from sympy import symbols
 from tabulate import tabulate
 import pandas as pd
 
-from model import Model
+from metastasisModel import MetastasisModel
 
-reduced_model = Model(modular=True)
+reduced_model = MetastasisModel(modular=True)
 
 stable = reduced_model.model.stable_states
 
