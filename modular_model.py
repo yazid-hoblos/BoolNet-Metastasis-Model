@@ -11,8 +11,10 @@ reduced_model = MetastasisModel(modular=True)
 
 # reduced_model.plot_stable_states('reduced_model', show=True)
 
-mutated_model = reduced_model.control(frozenfalse={'p53','Ecadh'})
-mutated_model.get_stable_states_df(display=True)
-mutated_model.write_stable_states('second_mutated_model')
+# mutated_model = reduced_model.control(frozenfalse={'p53','Ecadh'})
+# mutated_model.get_stable_states_df(display=True)
+# mutated_model.write_stable_states('second_mutated_model')
 
-mutated_model.plot_stable_states('second_mutated_model')
+# mutated_model.plot_stable_states('second_mutated_model')
+
+reduced_model.controllability_analysis('reduced_model')

@@ -1,0 +1,94 @@
+--------ECMicroenv--------
+OFF: Index(['HS', 'Apop2', 'Apop1', 'EMT2', 'EMT1'], dtype='object')
+ON: Index(['Apop3', 'Apop4', 'M2', 'M1'], dtype='object')
+--------ERK_pthw--------
+OFF: Index(['HS', 'EMT2', 'Apop2', 'Apop1', 'EMT1', 'Apop4', 'Apop3', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+ON: Index(['Novel', 'CCA', 'CCA_1', 'EMT2', 'EMT1', 'CCA_2', 'CCA_3', 'M2', 'M1'], dtype='object')
+--------p63_73--------
+OFF: Index(['HS', 'EMT2', 'Apop1', 'Apop3', 'EMT1', 'M2', 'M1'], dtype='object')
+ON: Index(['Apop2', 'Apop4', 'Apop2_1', 'EMT2', 'Apop4_1', 'EMT1', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+--------WNT_pthw--------
+OFF: Index(['HS', 'EMT2', 'Apop1', 'Apop2', 'EMT1', 'Apop3', 'Apop4', 'M2', 'M1'], dtype='object')
+ON: Index(['Apop1', 'Inv', 'Apop2', 'Apop3', 'Apop1_1', 'Inv_1', 'Inv_2', 'Apop4',
+       'Apop3_1', 'Inv_3'],
+      dtype='object')
+--------EMTreg--------
+OFF: Index(['HS', 'Apop2', 'Apop1', 'Apop4', 'Apop3'], dtype='object')
+ON: Index(['EMT2', 'EMT1', 'M2', 'M1'], dtype='object')
+--------TGFb_pthw--------
+OFF: Index(['HS', 'Apop2', 'Apop1', 'EMT2', 'Apop4', 'Apop3', 'EMT1', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+ON: Index(['Novel', 'CCA', 'CCA_1', 'CCA_2', 'CCA_3', 'M2', 'M1', 'M2_1', 'M1_1'], dtype='object')
+--------miRNA--------
+OFF: Index(['HS', 'Apop1', 'Apop2', 'Novel', 'Novel_1', 'EMT2', 'EMT1', 'M2', 'M1'], dtype='object')
+ON: Index(['Apop2', 'Apop4', 'Apop1', 'Apop2_1', 'Apop3', 'Apop4_1'], dtype='object')
+--------AKT1--------
+OFF: Index(['HS', 'EMT2', 'Apop2', 'Apop1', 'EMT1', 'Apop4', 'Apop3', 'M2', 'M1'], dtype='object')
+ON: Index(['Novel', 'Novel_1', 'Novel_2', 'Novel_3', 'Inv', 'Inv_1'], dtype='object')
+--------EMT--------
+OFF: Index(['HS', 'CCA', 'Apop2', 'Apop1', 'CCA_1', 'Apop4', 'Apop3', 'Inv',
+       'Inv_1'],
+      dtype='object')
+ON: Index(['Novel', 'EMT2', 'Apop2', 'EMT1', 'Apop1', 'Apop4', 'Apop3', 'M2',
+       'M1'],
+      dtype='object')
+--------Migration--------
+OFF: Index(['HS', 'Apop1', 'Apop2', 'EMT2', 'Apop4', 'Apop3', 'EMT1', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+ON: Index(['Novel', 'Apop1', 'Apop2', 'CCA', 'Apop4', 'Apop3', 'CCA_1', 'M2',
+       'M1'],
+      dtype='object')
+--------GF--------
+OFF: Index(['HS', 'EMT2', 'EMT1', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'M2', 'M1'], dtype='object')
+ON: Index(['Novel', 'EMT2', 'CCA', 'CCA_1', 'EMT1', 'CCA_2', 'CCA_3', 'M2', 'M1'], dtype='object')
+--------Invasion--------
+OFF: Index(['HS', 'Apop1', 'Apop2', 'EMT2', 'Apop3', 'Apop4', 'EMT1', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+ON: Index(['Inv', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'M2', 'M1', 'M2_1', 'M1_1'], dtype='object')
+--------p53--------
+OFF: Index(['HS', 'EMT2', 'Apop2', 'EMT1', 'Apop4', 'M2', 'M1'], dtype='object')
+ON: Index(['Apop1', 'Apop3', 'Apop1_1', 'Apop3_1'], dtype='object')
+--------AKT2--------
+OFF: Index(['HS', 'EMT2', 'Apop1', 'Apop2', 'EMT1', 'Apop3', 'Apop4', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+ON: Index(['EMT2', 'EMT1', 'M2', 'M1'], dtype='object')
+--------Apoptosis--------
+OFF: Index(['HS', 'CCA', 'CCA_1', 'EMT2', 'CCA_2', 'CCA_3', 'EMT1', 'M2', 'M1'], dtype='object')
+ON: Index(['Novel', 'Apop1', 'Apop2', 'Apop2_1', 'Apop3', 'Apop4', 'Apop2_2',
+       'Apop4_1', 'Apop4_2'],
+      dtype='object')
+--------CCA--------
+OFF: Index(['HS', 'Novel', 'Novel_1', 'Novel_2', 'Novel_3', 'Novel_4', 'Novel_5',
+       'M2', 'M1'],
+      dtype='object')
+ON: Index(['CCA', 'EMT2', 'Apop2', 'Apop1', 'EMT1', 'Apop4', 'Apop3', 'M2', 'M1'], dtype='object')
+--------Ecadh--------
+OFF: Index(['Apop2', 'Apop1', 'EMT2', 'CCA', 'CCA_1', 'Apop4', 'Apop3', 'EMT1',
+       'CCA_2', 'CCA_3', 'M2', 'M1'],
+      dtype='object')
+ON: Index(['HS', 'CCA', 'Apop2', 'Apop1', 'CCA_1', 'Apop4', 'Apop3', 'Inv',
+       'Inv_1'],
+      dtype='object')
+--------Metastasis--------
+OFF: Index(['HS', 'EMT2', 'Apop2', 'Apop1', 'Apop3', 'EMT1', 'Apop4', 'EMT2_1',
+       'EMT1_1'],
+      dtype='object')
+ON: Index(['Novel', 'CCA', 'Apop2', 'Apop1', 'CCA_1', 'Apop4', 'Apop3', 'M2',
+       'M1'],
+      dtype='object')
+--------Notch_pthw--------
+OFF: Index(['HS', 'Novel', 'Apop1', 'Apop2', 'EMT2', 'Apop3', 'Apop4', 'EMT1', 'M2',
+       'M1'],
+      dtype='object')
+ON: Index(['CCA', 'CCA_1', 'CCA_2', 'CCA_3', 'M2', 'M2_1', 'M1', 'M1_1'], dtype='object')
+--------DNAdamage--------
+OFF: Index(['HS', 'EMT2', 'M2'], dtype='object')
+ON: Index(['Apop1', 'Apop2', 'EMT1', 'Apop3', 'Apop4', 'M1'], dtype='object')

@@ -1,5 +1,5 @@
 from sympy import symbols
-from BooN import *
+from BooN import BooN
 
 from utils import *
 
@@ -44,6 +44,7 @@ class MetastasisModel:
             Metastasis: Migration,
             DNAdamage: DNAdamage,
             ECMicroenv: ECMicroenv}
+            
         else:
             desc={AKT1: CTNNB1 & (NICD | TGFbeta | GF | CDH2) & ~p53 & ~miR34 & ~CDH1,
             AKT2: TWIST1 & (TGFbeta | GF | CDH2) & ~(miR203 | miR34 | p53),
@@ -94,22 +95,28 @@ class MetastasisModel:
         s=self.symbols
         df = self.stable_states_df
         CDH = s['CDH1'] if s['CDH1'] in df.index.tolist() else s['Ecadh']
-        ECM_ = s['ECM'] if s['ECM'] in df.index.tolist() else s['ECMicroenv']
+        ECM = s['ECM'] if s['ECM'] in df.index.tolist() else s['ECMicroenv']
+        CCA = s['CellCycleArrest'] if s['CellCycleArrest'] in df.index.tolist() else s['CCA']
         for col in df.columns:
             state = df[col]
             if state[CDH] and state.sum() == 1:
                 name = "HS"
-            elif state[s['Apoptosis']]:
+            elif state[s['Apoptosis']] and state[CCA]:
                 if state[s['p53']]:
-                    name = "Apop1" if not state[ECM_] else "Apop3"
+                    name = "Apop1" if not state[ECM] else "Apop3"
                 else:
-                    name = "Apop2" if not state[ECM_] else "Apop4"
-            elif state[s['EMT']] and not state[s['Metastasis']]:
+                    name = "Apop2" if not state[ECM] else "Apop4"
+            elif state[s['EMT']] and not state[s['Metastasis']] and state[CCA]:
                 name = "EMT1" if state[s['DNAdamage']] else "EMT2"
-            elif state[s['Metastasis']] and state[s['Invasion']] and state[s['Migration']]:
+            elif state[s['Metastasis']] and state[s['Invasion']] and state[s['Migration']] and state[s['EMT']]:
                 name = "M1" if state[s['DNAdamage']] else "M2"
             else:
-                name = "Novel"
+                if state[s['Invasion']]:
+                    name = "Inv"
+                elif state[CCA]:
+                    name = "CCA"
+                else:
+                    name = "Novel"
             state_names.append(name)
         
         name_counts = {}
@@ -177,6 +184,16 @@ class MetastasisModel:
         for var in ft:
             model_replicate.model.desc[var]=True
         return model_replicate
+    
+    def controllability_analysis(self, name):
+        with open(f'data_files/{name}_controllability_analysis.txt', 'w') as f:
+            for var in self.variables:
+                LoF=self.control(frozenfalse={str(var)}).get_stable_states_df().columns
+                GoF=self.control(frozentrue={str(var)}).get_stable_states_df().columns
+                f.write(f"--------{var}--------\n")
+                f.write(f"OFF: {LoF}\n")
+                f.write(f"ON: {GoF}\n")
+            
         
 
 
