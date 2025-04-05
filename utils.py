@@ -256,7 +256,10 @@ def plot_controllability_results(file):
 
     df_combined = pd.DataFrame(control_matrix, index=control_nodes, columns=all_states)
 
-    colors = ['white', 'green', 'red', 'purple']  # None, ON, OFF, Both
+    blue = plt.cm.RdBu_r(0.01)
+    red = plt.cm.RdBu_r(0.9)   
+
+    colors = ['white', 'green', red, blue]  # None, ON, OFF, Both
     cmap = ListedColormap(colors)
 
     plt.figure(figsize=(12, 12))
@@ -266,8 +269,8 @@ def plot_controllability_results(file):
     legend_patches = [
         mpatches.Patch(color='white', label='None'),
         mpatches.Patch(color='green', label='ON'),
-        mpatches.Patch(color='red', label='OFF'),
-        mpatches.Patch(color='purple', label='ON/OFF')
+        mpatches.Patch(color=red, label='OFF'),
+        mpatches.Patch(color=blue, label='ON/OFF')
     ]
     plt.legend(handles=legend_patches, title="Effect Type",
             bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)

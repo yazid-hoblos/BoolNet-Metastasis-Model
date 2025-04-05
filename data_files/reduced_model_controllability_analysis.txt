@@ -57,7 +57,7 @@ ON: ['Novel', 'Apop1', 'Apop2', 'CCA', 'Apop4', 'Apop3', 'CCA_1', 'M2', 'M1']
 
 		--------Notch_pthw---------
 OFF: ['HS', 'Novel', 'Apop1', 'Apop2', 'EMT2', 'Apop3', 'Apop4', 'EMT1', 'M2', 'M1']
-ON: ['CCA', 'CCA_1', 'CCA_2', 'CCA_3', 'M2', 'M1', 'M2_1', 'M1_1']
+ON: ['CCA', 'CCA_1', 'CCA_2', 'CCA_3', 'M2', 'M2_1', 'M1', 'M1_1']
 
 		--------TGFb_pthw---------
 OFF: ['HS', 'Apop2', 'Apop1', 'EMT2', 'Apop4', 'Apop3', 'EMT1', 'EMT2_1', 'EMT1_1']
@@ -73,7 +73,7 @@ ON: ['Apop2', 'Apop4', 'Apop1', 'Apop2_1', 'Apop3', 'Apop4_1']
 
 		--------p53---------
 OFF: ['HS', 'EMT2', 'Apop2', 'EMT1', 'Apop4', 'M2', 'M1']
-ON: ['Apop1', 'Apop1_1', 'Apop3', 'Apop3_1']
+ON: ['Apop1', 'Apop3', 'Apop1_1', 'Apop3_1']
 
 		--------p63_73---------
 OFF: ['HS', 'EMT2', 'Apop1', 'Apop3', 'EMT1', 'M2', 'M1']
