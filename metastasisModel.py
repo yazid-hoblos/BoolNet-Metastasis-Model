@@ -90,7 +90,7 @@ class MetastasisModel:
         output += self.model.__str__() 
         return output
      
-    def identify_stable_states(self):
+    def identify_stable_states(self, prevent_duplicates=True):
         state_names = []
         s=self.symbols
         df = self.stable_states_df
@@ -118,23 +118,26 @@ class MetastasisModel:
                 else:
                     name = "Novel"
             state_names.append(name)
-        
-        name_counts = {}
-        unique_names = []
-        for name in state_names:
-            if name in name_counts:
-                name_counts[name] += 1
-                unique_name = f"{name}_{name_counts[name]}"
-            else:
-                name_counts[name] = 0
-                unique_name = name
-            unique_names.append(unique_name)
+            
+        if prevent_duplicates:
+            name_counts = {}
+            unique_names = []
+            for name in state_names:
+                if name in name_counts:
+                    name_counts[name] += 1
+                    unique_name = f"{name}_{name_counts[name]}"
+                else:
+                    name_counts[name] = 0
+                    unique_name = name
+                unique_names.append(unique_name)
+        else:
+            unique_names = state_names
             
         df.columns = unique_names
         self.stable_states_df = df
         return df
 
-    def get_stable_states_df(self, display=False):
+    def get_stable_states_df(self, display=False, prevent_duplicates=True):
         import pandas as pd
         from tabulate import tabulate
         stable = self.model.stable_states
@@ -143,7 +146,7 @@ class MetastasisModel:
         df = df.T
         df = rearrange_columns(df)
         self.stable_states_df = df
-        df = self.identify_stable_states()
+        df = self.identify_stable_states(prevent_duplicates)
         df.index.name = 'Variables'
         if display:
             print(tabulate(df, headers='keys', tablefmt='dpsl'))
@@ -185,16 +188,19 @@ class MetastasisModel:
             model_replicate.model.desc[var]=True
         return model_replicate
     
-    def controllability_analysis(self, name):
+    def controllability_analysis(self, name, prevent_duplicates=True,plot=False):
         vars = sorted(self.variables, key=lambda x: str(x))
         with open(f'data_files/{name}_controllability_analysis.txt', 'w') as f:
             f.write("------------ Controllability Analysis ------------\n")
             for var in vars:
-                LoF=list(self.control(frozenfalse={str(var)}).get_stable_states_df().columns)
-                GoF=list(self.control(frozentrue={str(var)}).get_stable_states_df().columns)
+                LoF=list(self.control(frozenfalse={str(var)}).get_stable_states_df(prevent_duplicates=prevent_duplicates).columns)
+                GoF=list(self.control(frozentrue={str(var)}).get_stable_states_df(prevent_duplicates=prevent_duplicates).columns)
                 f.write(f"\t\t--------{var}---------\n")
                 f.write(f"OFF: {LoF}\n")
                 f.write(f"ON: {GoF}\n\n")
+        if plot:
+            plot_controllability_results(name)
+            plot_controllability_bar_plot(name)
             
         
 

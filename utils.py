@@ -199,4 +199,123 @@ def draw_network_interactive(G, name='network_visualization'):
         from IPython.display import IFrame, display, HTML
         display(HTML(f'<a href="{output_path}" target="_blank">Open Network Visualization</a>'))
         display(IFrame(output_path, width="100%", height=750))
+    
+    
+def read_controllability_file(file):
+    import re, ast
+    with open(f'data_files/{file}_controllability_analysis.txt', 'r') as file:
+        data = file.read()
+
+    control_nodes = []
+    states_affected = {}
+
+    current_node = None
+    for line in data.split('\n'):
+        line = line.strip()
+        if '--------' in line and 'Controllability Analysis' not in line:
+            current_node = re.sub(r'-+', '', line).strip()
+            control_nodes.append(current_node)
+            states_affected[current_node] = {'OFF': [], 'ON': []}
+        elif line.startswith('OFF:'):
+            states = line.replace('OFF:', '').strip()
+            states = ast.literal_eval(states) if states else []
+            states_affected[current_node]['OFF'] = states
+        elif line.startswith('ON:'):
+            states = line.replace('ON:', '').strip()
+            states = ast.literal_eval(states) if states else []
+            states_affected[current_node]['ON'] = states
+
+    all_states = sorted({state for v in states_affected.values() for mode in v.values() for state in mode})
+    return control_nodes, states_affected, all_states
+
+def plot_controllability_results(file):
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import matplotlib.patches as mpatches
+    from matplotlib.colors import ListedColormap
+
+    control_nodes, states_affected, all_states = read_controllability_file(file)
+    on_matrix = np.zeros((len(control_nodes), len(all_states)))
+    off_matrix = np.zeros((len(control_nodes), len(all_states)))
+
+    for i, node in enumerate(control_nodes):
+        for j, state in enumerate(all_states):
+            if state in states_affected[node]['ON']:
+                on_matrix[i, j] = 1
+            if state in states_affected[node]['OFF']:
+                off_matrix[i, j] = 2
+
+    control_matrix = np.zeros_like(on_matrix)
+    for i in range(len(control_nodes)):
+        for j in range(len(all_states)):
+            has_on = on_matrix[i, j] == 1
+            has_off = off_matrix[i, j] == 2
+            control_matrix[i, j] = 3 if has_on and has_off else (1 if has_on else (2 if has_off else 0))
+
+    df_combined = pd.DataFrame(control_matrix, index=control_nodes, columns=all_states)
+
+    colors = ['white', 'green', 'red', 'purple']  # None, ON, OFF, Both
+    cmap = ListedColormap(colors)
+
+    plt.figure(figsize=(12, 12))
+    ax = sns.heatmap(df_combined, cmap=cmap, linewidths=0.5, linecolor='gray',
+                    cbar=False, square=True)
+
+    legend_patches = [
+        mpatches.Patch(color='white', label='None'),
+        mpatches.Patch(color='green', label='ON'),
+        mpatches.Patch(color='red', label='OFF'),
+        mpatches.Patch(color='purple', label='ON/OFF')
+    ]
+    plt.legend(handles=legend_patches, title="Effect Type",
+            bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+
+    plt.title('States Resulting from Nodes Control', fontsize=16)
+    plt.xlabel('Phenotypic States', fontsize=14)
+    plt.ylabel('Controlled Node', fontsize=14)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig(f'plots/{file}_controllability_analysis_heatmap.png', dpi=300)
+    
+def plot_controllability_bar_plot(filename):
+    control_nodes, states_affected, all_states = read_controllability_file(filename)
+    
+    on_matrix = np.zeros((len(control_nodes), len(all_states)))
+    off_matrix = np.zeros((len(control_nodes), len(all_states)))
+
+    for i, node in enumerate(control_nodes):
+        for j, state in enumerate(all_states):
+            if state in states_affected[node]['ON']:
+                on_matrix[i, j] = 1
+            if state in states_affected[node]['OFF']:
+                off_matrix[i, j] = 1
+    
+    on_counts = [sum(on_matrix[i]) for i in range(len(control_nodes))]
+    off_counts = [sum(off_matrix[i]) for i in range(len(control_nodes))]
+
+    x = np.arange(len(control_nodes))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(14, 8))
+    rects1 = ax.bar(x - width/2, on_counts, width, label='ON effects', color='green', alpha=0.7)
+    rects2 = ax.bar(x + width/2, off_counts, width, label='OFF effects', color='red', alpha=0.7)
+
+    ax.set_ylabel('Number of Reached States')
+    ax.set_title('Number of States Reached by Controlling Nodes (one at a time)')
+    ax.set_xticks(x)
+    ax.set_xticklabels(control_nodes, rotation=45, ha='right')
+    ax.legend()
+
+    def autolabel(rects):
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate(f'{int(height)}',xy=(rect.get_x() + rect.get_width() / 2, height),xytext=(0, 3), textcoords="offset points",
+                        ha='center', va='bottom')
+    autolabel(rects1)
+    autolabel(rects2)
+    fig.tight_layout()
+    plt.savefig(f'plots/{filename}_controllability_analysis_bar_plot.png', dpi=300)
+
 
