@@ -186,13 +186,15 @@ class MetastasisModel:
         return model_replicate
     
     def controllability_analysis(self, name):
+        vars = sorted(self.variables, key=lambda x: str(x))
         with open(f'data_files/{name}_controllability_analysis.txt', 'w') as f:
-            for var in self.variables:
-                LoF=self.control(frozenfalse={str(var)}).get_stable_states_df().columns
-                GoF=self.control(frozentrue={str(var)}).get_stable_states_df().columns
-                f.write(f"--------{var}--------\n")
+            f.write("------------ Controllability Analysis ------------\n")
+            for var in vars:
+                LoF=list(self.control(frozenfalse={str(var)}).get_stable_states_df().columns)
+                GoF=list(self.control(frozentrue={str(var)}).get_stable_states_df().columns)
+                f.write(f"\t\t\t --------{var}---------\n")
                 f.write(f"OFF: {LoF}\n")
-                f.write(f"ON: {GoF}\n")
+                f.write(f"ON: {GoF}\n\n")
             
         
 
