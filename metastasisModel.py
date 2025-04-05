@@ -188,8 +188,8 @@ class MetastasisModel:
             model_replicate.model.desc[var]=True
         return model_replicate
     
-    def controllability_analysis(self, name, prevent_duplicates=True,plot=False):
-        vars = sorted(self.variables, key=lambda x: str(x))
+    def controllability_analysis(self, name, vars=None,prevent_duplicates=True,plot=False):
+        vars = sorted(self.variables, key=lambda x: str(x)) if vars is None else vars
         with open(f'data_files/{name}_controllability_analysis.txt', 'w') as f:
             f.write("------------ Controllability Analysis ------------\n")
             for var in vars:

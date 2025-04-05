@@ -17,4 +17,4 @@ reduced_model = MetastasisModel(modular=True)
 
 # mutated_model.plot_stable_states('second_mutated_model')
 
-reduced_model.controllability_analysis('reduced_model')
+reduced_model.controllability_analysis('reduced_model', prevent_duplicates=True, plot=False)

@@ -1,0 +1,21 @@
+------------ Controllability Analysis ------------
+		--------TWIST1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'CCA', 'CCA', 'CCA', 'CCA']
+ON: ['EMT1', 'EMT2', 'EMT1', 'EMT1', 'M2', 'M1']
+
+		--------ZEB1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Apop1', 'Novel', 'Novel', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------ZEB2---------
+OFF: ['HS', 'Apop2', 'Apop1', 'Novel', 'Apop4', 'Apop3', 'Novel', 'Inv', 'Inv']
+ON: ['CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------SNAI1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'M2', 'M1']
+ON: ['EMT1', 'EMT2', 'EMT1', 'EMT1', 'M2', 'M1']
+
+		--------SNAI2---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Apop2', 'Novel', 'Novel', 'EMT2', 'EMT1', 'M2', 'M1']
+
