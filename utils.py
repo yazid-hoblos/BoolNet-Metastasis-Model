@@ -149,15 +149,19 @@ def draw_network_interactive(G, name='network_visualization'):
                            damping=0.9, gravity=-50)
     
     for node in G.nodes():
-        phenotypes = ['EMT', 'Metastasis', 'Apoptosis', 'CellCycleArrest']
-        special_nodes = ['p53', 'CDH1', 'DNAdamage', 'ECM', 'ECMicroenv']
+        phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA']
+        special_nodes = ['Invasion', 'Migration', 'Proliferation', 'EMT']
+        input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv']
         
         if str(node) in phenotypes:
-            color = "#ff5500"  # Orange for phenotypes
+            color = "#ff0000"  # Red for phenotypes
             size = 35
         elif str(node) in special_nodes:
             color = "#0055ff"  # Blue for special nodes
             size = 30
+        elif str(node) in input_nodes:
+            color = "#ffff00" # Yellow for input nodes
+            size = 25
         else:
             color = "#888888"  # Gray for other nodes
             size = 20 + 5 * G.degree[node]

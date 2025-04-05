@@ -192,7 +192,7 @@ class MetastasisModel:
             for var in vars:
                 LoF=list(self.control(frozenfalse={str(var)}).get_stable_states_df().columns)
                 GoF=list(self.control(frozentrue={str(var)}).get_stable_states_df().columns)
-                f.write(f"\t\t --------{var}---------\n")
+                f.write(f"\t\t--------{var}---------\n")
                 f.write(f"OFF: {LoF}\n")
                 f.write(f"ON: {GoF}\n\n")
             
