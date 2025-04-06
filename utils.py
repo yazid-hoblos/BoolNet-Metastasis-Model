@@ -150,7 +150,7 @@ def draw_network_interactive(G, name='network_visualization'):
     
     for node in G.nodes():
         phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA']
-        special_nodes = ['Invasion', 'Migration', 'Proliferation', 'EMT']
+        special_nodes = ['Invasion', 'Migration', 'EMT']
         input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv']
         
         if str(node) in phenotypes:

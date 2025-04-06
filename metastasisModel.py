@@ -226,6 +226,13 @@ class MetastasisModel:
         print("\nActions")  
         actions = core2actions(core)
         print(tabulate(actions))
+        
+        # write to file
+        with open('data_files/necessary.txt', 'w') as f:
+            f.write("# clauses: {}\n".format(len(destiny.args)))
+            f.write("\nActions\n")
+            for action in actions:
+                f.write(f"{action}\n")
                 
         
 
