@@ -1,7 +1,7 @@
 # Modeling and Simulating Tumor Metastasis Dynamics with a Boolean Network
 
 In this repository, we present a boolean network model of metastasis dynamics. Our work is primarily based on 
-*Cohen et al* [1].
+*Cohen et al (2015)*.
 
 ## Model definition & Boolean Formalism
 
@@ -14,7 +14,7 @@ The variables in the model could be divided into:
 * Final/Intermediate phenotypic outputs: *Migration*, *Invasion*, *Metastasis*, *EMT*, *Apoptosis*, and *CellCycleArrest*.
 * Gene and miRNA players. 
 
-We note that the model is defined for one cell rather than a population of tumor cells. Moreover, besides the full model, a reduced modular model is provided by lumping variables into modules corresponding to signalling pathways (e.g. TGF-β pathway [TGFb_pthw]: TGFbeta, SMAD; WNT pathway [WNT_pthw]: DKK1, CTNNB1). This reduced model has a total of 20 variables (nodes) compared to the 32 of the full model. The input and phenotype variables are maintained the same in it.
+We note that the model is defined for one cell rather than a population of tumor cells. Moreover, besides the full model, a reduced modular model is provided by lumping variables into modules corresponding to signalling pathways (e.g. TGF-β pathway *TGFb_pthw*: TGFbeta, SMAD; WNT pathway *WNT_pthw*: DKK1, CTNNB1). This reduced model has a total of 20 variables (nodes) compared to the 32 of the full model. The input and phenotype variables are maintained the same in it.
 
 ## Code Structure
 
@@ -37,18 +37,34 @@ def draw_interaction_graph(self, name, split=False, interactive=False, show=Fals
 
 ### Full_Model & Modular_Model 
 
-## Model Definition
+Scripts [full_model.py](full_model.py) and [modular_model.py](modular_model.py) showcase the equivalent of a user interface, where the two versions of the model are instantiated to run the different functionalities relevant to our analysis
+
+Additionally, we provide a jupyter notebook [notebook.ipynb](notebook.ipynb) to illustrate how our code could be run.
+
+## Initial Exploratory Analysis
 
 ### Interactions Network Visualization
 
 ![influence_network](plots/reduced_model_interactions_network.png)
+![split_network](plots/reduced_model_split_interactions_networks.png)
 
 ### Stable States
+
+`identify_stable_states()` to which we later added Inv and CCA to match the authors results 
 
 ![heatmap](plots/full_model_stable_states_heatmap.png)
 
 ![reduced_heatmap](plots/reduced_model_stable_states_heatmap.png)
 
+## Equilibria
+
+attractors - enhanced BooN code - saved the model and ran quotient_graph only on scc > 1 => 7 cyclic attractors. Notably one of size 4 
+
+## Controllability Analysis
+
+The authors approach
+BooN - added max_cnf 
+
 ## References
 
-1. Cohen DPA, Martignetti L, Robine S, Barillot E, Zinovyev A, Calzone L (2015) Mathematical Modelling of Molecular Pathways Enabling Tumour Cell Invasion and Migration. PLoS Comput Biol 11(11): e1004571. https://doi.org/10.1371/journal.pcbi.1004571
+- Cohen DPA, Martignetti L, Robine S, Barillot E, Zinovyev A, Calzone L (2015) Mathematical Modelling of Molecular Pathways Enabling Tumour Cell Invasion and Migration. PLoS Comput Biol 11(11): e1004571. https://doi.org/10.1371/journal.pcbi.1004571
