@@ -1,6 +1,8 @@
 from metastasisModel import MetastasisModel
 
 reduced_model = MetastasisModel(modular=True)
+reduced_model.necessary(trueset={'Metastasis','Invasion','Migration','EMT'},max_cnf=10000, trace=True) 
+
 # print(f"Number of Modules: {len(reduced_model.variables)}")
 
 # reduced_model.draw_interaction_graph('reduced_model', split=True, interactive=True, show=True)
@@ -17,4 +19,19 @@ reduced_model = MetastasisModel(modular=True)
 
 # mutated_model.plot_stable_states('second_mutated_model')
 
-reduced_model.controllability_analysis('reduced_model', prevent_duplicates=True, plot=False)
+# reduced_model.controllability_analysis('reduced_model', prevent_duplicates=True, plot=False)
+
+import pickle
+with open('model.pkl', 'rb') as f:
+    model = pickle.load(f)
+
+def synchronous(variables: list | set) -> frozenset:
+    return frozenset({frozenset({*variables})})
+eqs=reduced_model.model.equilibria(model=model,trace=True)[1]
+
+for eq in eqs:
+    print(eq, len(eq))
+
+# with open('eqs.txt', 'w') as f:
+    # for eq in eqs:
+        # f.write(f"{eq}\n")

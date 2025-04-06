@@ -1,5 +1,5 @@
 from sympy import symbols
-from BooN import BooN
+from BooN import BooN, core2actions
 
 from utils import *
 
@@ -22,8 +22,8 @@ class MetastasisModel:
             
             self.symbols.update({'Ecadh': Ecadh, 'WNT_pthw': WNT_pthw, 'ERK_pthw': ERK_pthw, 'miRNA': miRNA,
                 'Notch_pthw': Notch_pthw, 'p63_73': p63_73, 'TGFb_pthw': TGFb_pthw,
-                'EMTreg': EMTreg, 'CCA': CCA, 'ECMicroenv': ECMicroenv})
-
+                'EMTreg': EMTreg, 'CCA': CCA, 'ECMicroenv': ECMicroenv})            
+            
             desc={AKT1: WNT_pthw & (Notch_pthw | TGFb_pthw | GF | EMTreg) & ~miRNA & ~p53 & ~Ecadh,
             AKT2: (TGFb_pthw | GF | Notch_pthw | EMTreg) & EMTreg & ~miRNA & ~p53,
             Ecadh: ~AKT2 & ~EMTreg,
@@ -193,6 +193,7 @@ class MetastasisModel:
         with open(f'data_files/{name}_controllability_analysis.txt', 'w') as f:
             f.write("------------ Controllability Analysis ------------\n")
             for var in vars:
+                # self.control(frozentrue={str(var)}).get_stable_states_df(prevent_duplicates=prevent_duplicates, display=True)
                 LoF=list(self.control(frozenfalse={str(var)}).get_stable_states_df(prevent_duplicates=prevent_duplicates).columns)
                 GoF=list(self.control(frozentrue={str(var)}).get_stable_states_df(prevent_duplicates=prevent_duplicates).columns)
                 f.write(f"\t\t--------{var}---------\n")
@@ -202,6 +203,30 @@ class MetastasisModel:
             plot_controllability_results(name)
             plot_controllability_bar_plot(name)
             
+    def necessary(self, trueset={},falseset={},max_cnf=10000,trace=False):
+        from pulp import PULP_CBC_CMD
+        from tabulate import tabulate
+        from sympy import SOPform, simplify_logic
+        
+        s=self.symbols
+        var_set = {s[m] for m in trueset.union(falseset)}
+        marking = {s[m]: True for m in trueset}
+        marking.update({s[m]: False for m in falseset})
+        formula = SOPform(var_set, [marking])
+        kquery = simplify_logic(formula, force=True)
+
+        model_copy = self.model.copy()
+        model_copy.control(frozentrue=self.variables-var_set, frozenfalse=self.variables-var_set)
+        
+        destiny=model_copy.necessary(kquery, max_models=max_cnf,trace=trace)
+        print("# clauses: {}".format(len(destiny.args)))
+        
+        core = model_copy.destify(destiny, trace=True, solver=PULP_CBC_CMD)
+        print("\n",tabulate(core, headers=['Control'], tablefmt='plain', showindex=True))
+        print("\nActions")  
+        actions = core2actions(core)
+        print(tabulate(actions))
+                
         
 
 

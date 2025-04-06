@@ -8,7 +8,7 @@ OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
 ON: ['Novel', 'Apop1', 'Novel', 'Novel', 'EMT2', 'EMT1', 'M2', 'M1']
 
 		--------ZEB2---------
-OFF: ['HS', 'Apop2', 'Apop1', 'Novel', 'Apop4', 'Apop3', 'Novel', 'Inv', 'Inv']
+OFF: ['HS', 'Apop2', 'Apop1', 'Novel', 'Apop3', 'Apop4', 'Novel', 'Inv', 'Inv']
 ON: ['CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
 
 		--------SNAI1---------
