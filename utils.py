@@ -92,6 +92,16 @@ def draw_interaction_graph(graph, name, show=False):
             elif data['sign'] < 0:
                 inhibition_edges.append((u, v)) 
 
+    phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA', 'Invasion', 'Migration', 'EMT']
+    input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv', 'GF']
+    for node in graph.nodes():
+        if str(node) in phenotypes:
+            nx.draw_networkx_nodes(graph, pos, nodelist=[node], node_color="grey", node_size=1000, edgecolors="black")
+        elif str(node) in input_nodes:
+            nx.draw_networkx_nodes(graph, pos, nodelist=[node], node_color="yellow", node_size=1000, edgecolors="black")
+        else:
+            nx.draw_networkx_nodes(graph, pos, nodelist=[node], node_color="lightblue", node_size=1000, edgecolors="black")
+    
     nx.draw_networkx_edges(graph, pos, edgelist=activation_edges, edge_color="green", arrows=True, width=2)
     nx.draw_networkx_edges(graph, pos, edgelist=inhibition_edges, edge_color="red", arrows=True, width=2, style="dashed")
     nx.draw_networkx_labels(graph, pos, font_size=10, font_weight="bold")
@@ -115,17 +125,34 @@ def draw_act_inh_seperately(G, name, show=False):
         elif data['sign'] < 0:
             G_inhibition.add_edge(u, v, color="red")
 
-    G_activation.remove_nodes_from(list(nx.isolates(G_activation)))
-    G_inhibition.remove_nodes_from(list(nx.isolates(G_inhibition)))
+    phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA', 'Invasion', 'Migration', 'EMT']
+    input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv', 'GF']
+    
+    # G_activation.remove_nodes_from(list(nx.isolates(G_activation)))
+    # G_inhibition.remove_nodes_from(list(nx.isolates(G_inhibition)))
 
-    fig, ax = plt.subplots(1, 2, figsize=(21, 10))
     # pos = nx.spring_layout(G)  
     pos = nx.kamada_kawai_layout(G)
 
-    nx.draw(G_activation, pos, ax=ax[0], with_labels=True, edge_color="green", node_color="lightblue")
+    def get_node_colors(graph):
+        colors = []
+        for node in graph.nodes():
+            if str(node) in phenotypes:
+                colors.append("grey")  # Phenotypes in red
+            elif str(node) in input_nodes:
+                colors.append("yellow")  # Input nodes in yellow
+            else:
+                colors.append("lightblue")  # Other nodes in light blue
+        return colors
+
+    node_colors = get_node_colors(G) 
+        
+    fig, ax = plt.subplots(1, 2, figsize=(21, 10))
+
+    nx.draw(G_activation, pos, ax=ax[0], with_labels=True, edge_color="green", node_color=node_colors)
     ax[0].set_title("Activation Network")
 
-    nx.draw(G_inhibition, pos, ax=ax[1], with_labels=True, edge_color="red", node_color="lightblue")
+    nx.draw(G_inhibition, pos, ax=ax[1], with_labels=True, edge_color="red", node_color=node_colors)
     ax[1].set_title("Inhibition Network")
 
     plt.savefig(f'plots/{name}_split_interactions_network.png', dpi=300)
@@ -149,19 +176,15 @@ def draw_network_interactive(G, name='network_visualization'):
                            damping=0.9, gravity=-50)
     
     for node in G.nodes():
-        phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA']
-        special_nodes = ['Invasion', 'Migration', 'EMT']
-        input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv']
+        phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA', 'Invasion', 'Migration', 'EMT']
+        input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv', 'GF']
         
         if str(node) in phenotypes:
             color = "#ff0000"  # Red for phenotypes
             size = 35
-        elif str(node) in special_nodes:
+        elif str(node) in input_nodes:
             color = "#0055ff"  # Blue for special nodes
             size = 30
-        elif str(node) in input_nodes:
-            color = "#ffff00" # Yellow for input nodes
-            size = 25
         else:
             color = "#888888"  # Gray for other nodes
             size = 20 + 5 * G.degree[node]

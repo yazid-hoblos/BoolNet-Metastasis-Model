@@ -1,0 +1,129 @@
+------------ Controllability Analysis ------------
+		--------AKT1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Novel', 'Novel', 'Novel', 'Inv', 'Inv']
+
+		--------AKT2---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'EMT2', 'EMT1', 'EMT1']
+ON: ['EMT2', 'EMT1', 'M2', 'M1']
+
+		--------Apoptosis---------
+OFF: ['HS', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'Apop2', 'Apop2', 'Apop4', 'Apop4']
+
+		--------CDH1---------
+OFF: ['Apop1', 'Apop2', 'CCA', 'CCA', 'Apop3', 'Apop4', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'CCA', 'CCA', 'Inv', 'Inv']
+
+		--------CDH2---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'CCA', 'Apop4', 'CCA', 'CCA', 'CCA', 'CCA']
+ON: ['Novel', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------CTNNB1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Inv', 'Inv', 'Inv', 'EMT2', 'Inv', 'Inv', 'EMT1', 'EMT2', 'Inv', 'Inv', 'EMT1', 'Inv']
+
+		--------CellCycleArrest---------
+OFF: ['HS', 'Novel', 'Novel', 'Novel', 'Novel', 'Novel', 'Novel', 'M2', 'M1']
+ON: ['CCA', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------DKK1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------DNAdamage---------
+OFF: ['HS', 'EMT2', 'M2']
+ON: ['Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT1', 'M1']
+
+		--------ECM---------
+OFF: ['HS', 'Apop2', 'Apop1', 'EMT2', 'EMT1']
+ON: ['Apop3', 'Apop4', 'M2', 'M1']
+
+		--------EMT---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'CCA', 'CCA', 'Inv', 'Inv']
+ON: ['Novel', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------ERK---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Novel', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------GF---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------Invasion---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Inv', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'M2', 'M1', 'M2', 'M1']
+
+		--------Metastasis---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Novel', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'CCA', 'CCA', 'M2', 'M1']
+
+		--------Migration---------
+OFF: ['HS', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Novel', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'CCA', 'CCA', 'M2', 'M1']
+
+		--------NICD---------
+OFF: ['HS', 'Novel', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['EMT2', 'EMT1', 'EMT2', 'EMT1', 'EMT2', 'EMT1', 'EMT2', 'EMT1', 'M2', 'M1', 'M2', 'M1']
+
+		--------SMAD---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Novel', 'CCA', 'CCA', 'CCA', 'CCA', 'M2', 'M1', 'M2', 'M1']
+
+		--------SNAI1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'M2', 'M1']
+ON: ['EMT1', 'EMT2', 'EMT1', 'EMT1', 'M2', 'M1']
+
+		--------SNAI2---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Apop2', 'Novel', 'Novel', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------TGFbeta---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Novel', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'M2', 'M1', 'M2', 'M1']
+
+		--------TWIST1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'CCA', 'CCA', 'CCA', 'CCA']
+ON: ['EMT1', 'EMT2', 'EMT1', 'EMT1', 'M2', 'M1']
+
+		--------VIM---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+ON: ['Novel', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------ZEB1---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Novel', 'Apop1', 'Novel', 'Novel', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------ZEB2---------
+OFF: ['HS', 'Apop2', 'Apop1', 'Novel', 'Apop4', 'Apop3', 'Novel', 'Inv', 'Inv']
+ON: ['CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'CCA', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------miR200---------
+OFF: ['HS', 'Apop2', 'Apop1', 'Novel', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Apop2', 'Apop4', 'Apop1', 'Apop2', 'EMT2', 'Apop3', 'Apop4', 'EMT1', 'EMT2', 'EMT1']
+
+		--------miR203---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['CCA', 'Apop2', 'Apop1', 'Apop4', 'Apop3']
+
+		--------miR34---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop3', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Apop1', 'Apop2', 'Apop1', 'Apop3', 'Apop4', 'Apop3']
+
+		--------p21---------
+OFF: ['HS', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['CCA', 'Apop1', 'Apop2', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+
+		--------p53---------
+OFF: ['HS', 'Apop2', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Apop1', 'Apop1', 'Apop3', 'Apop3']
+
+		--------p63---------
+OFF: ['HS', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Apop2', 'Apop4', 'Apop2', 'Apop1', 'Apop4', 'Apop3', 'EMT2', 'EMT1', 'EMT2', 'EMT1']
+
+		--------p73---------
+OFF: ['HS', 'Apop1', 'Apop3', 'EMT2', 'EMT1', 'M2', 'M1']
+ON: ['Apop2', 'Apop2', 'Apop4', 'Apop4', 'EMT2', 'EMT1', 'M2', 'M1']
+

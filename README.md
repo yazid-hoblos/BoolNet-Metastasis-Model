@@ -24,7 +24,7 @@ We define `MetastasisModel` to include both the full and reduced model variables
 
 ### Utils 
 
-Along the way, We defined a set of versatile functions that are mostly adopted by `MetastasisModel` behaviors. For instance, a `MetastasisModel` instance makes use of 3 visualization functions to provide multiple options for drawing the influence network graph. The `split` argument allows the seperation of activation and inhibition subnetworks, while `interactive` uses pyviz library to create an interactive html file of the model graph. By default, the method saves the resulting plots, and they could be also shown is `show` is set to True.
+Along the way, We defined a set of versatile functions that are mostly adopted by `MetastasisModel` behaviors. For instance, a `MetastasisModel` instance makes use of 3 visualization functions to provide multiple options for drawing the influence network graph. The `split` argument allows the seperation of activation and inhibition subnetworks, while `interactive` uses pyviz library to create an interactive html file of the model graph. By default, the method saves the resulting plots, and they could be also shown if `show` is set to True.
 
 ```python
 def draw_interaction_graph(self, name, split=False, interactive=False, show=False):
@@ -45,6 +45,7 @@ Additionally, we provide a jupyter notebook [notebook.ipynb](notebook.ipynb) to 
 
 ### Interactions Network Visualization
 
+Besides the defined logical rules, the interaction graph 
 ![influence_network](plots/reduced_model_interactions_network.png)
 ![split_network](plots/reduced_model_split_interactions_networks.png)
 

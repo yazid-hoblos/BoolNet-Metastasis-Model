@@ -3,6 +3,10 @@ from BooN import BooN, core2actions
 
 from utils import *
 
+from sympy.logic.boolalg import And, Or
+from sympy.logic.boolalg import And, Or, Not, BooleanFunction
+import itertools 
+
 class MetastasisModel:
     def __init__(self, modular=False):
         
@@ -203,7 +207,7 @@ class MetastasisModel:
             plot_controllability_results(name)
             plot_controllability_bar_plot(name)
             
-    def necessary(self, trueset={},falseset={},max_cnf=10000,trace=False):
+    def necessary(self, trueset=set(),falseset=set(),max_cnf=10000,trace=False):
         from pulp import PULP_CBC_CMD
         from tabulate import tabulate
         from sympy import SOPform, simplify_logic
@@ -213,11 +217,13 @@ class MetastasisModel:
         marking = {s[m]: True for m in trueset}
         marking.update({s[m]: False for m in falseset})
         formula = SOPform(var_set, [marking])
+        print("Formula: ", formula)
+        print("marking: ", marking) 
         kquery = simplify_logic(formula, force=True)
 
         model_copy = self.model.copy()
-        model_copy.control(frozentrue=self.variables-var_set, frozenfalse=self.variables-var_set)
-        
+        model_copy.control(frozentrue=self.model.variables-var_set, frozenfalse=self.model.variables-var_set)
+        print(len(model_copy.desc))
         destiny=model_copy.necessary(kquery, max_models=max_cnf,trace=trace)
         print("# clauses: {}".format(len(destiny.args)))
         
@@ -228,14 +234,84 @@ class MetastasisModel:
         print(tabulate(actions))
         
         # write to file
-        with open('data_files/necessary.txt', 'w') as f:
-            f.write("# clauses: {}\n".format(len(destiny.args)))
-            f.write("\nActions\n")
-            for action in actions:
-                f.write(f"{action}\n")
-                
+        # with open('data_files/necessary2.txt', 'w') as f:
+            # f.write("# clauses: {}\n".format(len(destiny.args)))
+            # f.write("\nActions\n")
+            # for action in actions:
+                # f.write(f"{action}\n")
+              
+    def change(self):
+        from collections import Counter
+        import pandas as pd
+        from sympy import simplify
+        stable_state_counter = Counter()
+
+        for state in self.model.stable_states:
+            stable_state_counter[frozenset(state.items())] += 1
+
+        for var in self.variables - {self.symbols['CDH1']}:
+            expr = self.model.desc[var]
+            operator_nodes = self.get_operator_nodes(expr)
+
+            for node in operator_nodes:
+                if isinstance(node, And):
+                    new_expr = self.replace_operator(expr, node, Or)
+                elif isinstance(node, Or):
+                    new_expr = self.replace_operator(expr, node, And)
+                else:
+                    continue
+
+                r = MetastasisModel()
+                r.model.desc[var] = new_expr
+
+                simplified_expr = simplify(new_expr)
+
+                if simplified_expr.is_Boolean:
+                    truth_value = simplified_expr.simplify()  # Evaluate the boolean expression
+                else:
+                    truth_value = None  # Handle unsimplified expressions
+
+                for state in r.model.stable_states:
+                    stable_state_counter[frozenset(state.items())] += 1
+
+        state_dicts = [dict(state) for state in stable_state_counter.keys()]
+        df = pd.DataFrame(state_dicts).fillna(0).astype(int)
+
+        df['Count'] = [stable_state_counter[state] for state in stable_state_counter.keys()]
+
+        # **Fix for sorting columns** - convert symbolic expressions to string if needed
+        # df.columns = [str(col) if isinstance(col, And) or isinstance(col, Or) else col for col in df.columns]
+
+        # Optional: Reindex columns and sort by stable state occurrence count
+        # df = df.reindex(sorted(df.columns), axis=1)
+        print(df.columns)
+        #print the 9 rows with the highest count
+        print(df.nlargest(9, 'Count').T)
+        # plot df.nlargest(9, 'Count').T
+        print(df.shape)
+        # plot the 9 rows with the highest count
+        plot_stable_states(df.nlargest(9, 'Count').drop('Count',axis=1).T, 'extra', show=True)
+        return df
         
+    def get_operator_nodes(self,expr):
+        ops = []
+        if isinstance(expr, (And, Or)):
+            ops.append(expr)
+        for arg in getattr(expr, 'args', []):
+            ops += self.get_operator_nodes(arg)
+        return ops
+
+    def replace_operator(self,expr, target, replacement_cls):
+        if expr == target:
+            return replacement_cls(*[self.replace_operator(arg, arg, replacement_cls) if isinstance(arg, (And,Or)) else arg for arg in target.args])
+        elif isinstance(expr, BooleanFunction):
+            return expr.func(*[self.replace_operator(arg, target, replacement_cls) for arg in expr.args])
+        else:
+            return expr
+
+                    
+            
 
 
-            
-            
+                
+                

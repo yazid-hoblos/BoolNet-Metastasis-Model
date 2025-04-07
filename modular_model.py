@@ -1,7 +1,10 @@
 from metastasisModel import MetastasisModel
 
 reduced_model = MetastasisModel(modular=True)
-reduced_model.necessary(trueset={'Metastasis','Invasion','Migration','EMT'},max_cnf=40000, trace=True) 
+# mutated_model =reduced_model.control(frozentrue={'Metastasis','Invasion','Migration','EMT','CCA'}, frozenfalse={'Apoptosis'})
+# mutated_model.get_stable_states_df(display=True)
+# reduced_model.draw_interaction_graph('reduced_model', split=True, interactive=False, show=True)
+# reduced_model.necessary(trueset={'Metastasis','Invasion','Migration','EMT','CCA'}, falseset={'Apoptosis'},max_cnf=20000000, trace=True) 
 
 # print(f"Number of Modules: {len(reduced_model.variables)}")
 

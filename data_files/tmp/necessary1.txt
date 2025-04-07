@@ -1,0 +1,20 @@
+# clauses: 59973
+
+Actions
+[(ECMicroenv, True)]
+[(DNAdamage, True)]
+[(Notch_pthw, True)]
+[(AKT2, True)]
+[(Ecadh, False)]
+[(p53, True)]
+[(miRNA, True)]
+[(EMTreg, True)]
+[(p63_73, True)]
+[(WNT_pthw, True), (CCA, True)]
+[(WNT_pthw, True), (Apoptosis, True)]
+[(AKT1, True), (CCA, True)]
+[(EMTreg, False), (WNT_pthw, True)]
+[(WNT_pthw, True), (Ecadh, True)]
+[(AKT1, False), (WNT_pthw, True)]
+[(TGFb_pthw, True), (Ecadh, True), (Apoptosis, True), (AKT1, True), (GF, True)]
+[(TGFb_pthw, True), (Apoptosis, True), (AKT1, True), (EMTreg, False), (GF, True)]

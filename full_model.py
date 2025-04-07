@@ -2,8 +2,11 @@ from utils import *
 from metastasisModel import MetastasisModel
 
 full_model = MetastasisModel(modular=False) 
+# full_model.change()
 
-full_model.necessary('Metastasis', trace=True) 
+# full_model.necessary('Metastasis', trace=True) 
+# full_model.necessary(trueset={'Metastasis'},max_cnf=200000, trace=True) 
+
 
 # print(full_model)
 
@@ -22,8 +25,10 @@ full_model.necessary('Metastasis', trace=True)
 # mutated_model.plot_stable_states('mutated_model', show=False)
 
 # full_model.controllability_analysis('EMT-regulators', vars=['TWIST1','ZEB1','ZEB2','SNAI1','SNAI2'],prevent_duplicates=False, plot=True)
-# mutated_model = full_model.control(frozentrue={'NICD'}, frozenfalse={'p53'})
-# mutated_model.get_stable_states_df(display=True)
+mutated_model = full_model.control(frozentrue={'NICD'}, frozenfalse={'p53'})
+mutated_model.get_stable_states_df(display=True)
 
 # mutated_model = full_model.control(frozentrue={'miR203'})
 # mutated_model.get_stable_states_df(display=True)
+
+# full_model.controllability_analysis('full_model', prevent_duplicates=False, plot=True)
