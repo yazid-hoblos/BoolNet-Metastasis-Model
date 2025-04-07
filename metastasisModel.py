@@ -243,7 +243,7 @@ class MetastasisModel:
             # for action in actions:
                 # f.write(f"{action}\n")
               
-    def change(self):
+    def robustness(self):
         from collections import Counter
         import pandas as pd
         from sympy import simplify
