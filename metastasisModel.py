@@ -7,8 +7,7 @@ except ImportError:
 from utils import *
 
 from sympy.logic.boolalg import And, Or
-from sympy.logic.boolalg import And, Or, Not, BooleanFunction
-import itertools 
+from sympy.logic.boolalg import And, Or, BooleanFunction
 
 class MetastasisModel:
     def __init__(self, modular=False):
