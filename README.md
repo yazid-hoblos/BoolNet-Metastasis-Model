@@ -5,7 +5,7 @@ In this repository, we present a boolean network model of metastasis dynamics. O
 
 ## Model definition & Boolean Formalism
 
-The main genes involved in the activation of EMT (Epithelial to Mesenchymal Transition) in tumor cells, which regulated early invasion and triggers metastasis, were first identified. Subsequently, experimentally proven physical interactions between these genes were extracted from scientific articles to create the influence network and formalize the boolean network. 
+The main genes involved in the activation of EMT (Epithelial to Mesenchymal Transition) in tumor cells, which regulates early invasion and triggers metastasis, were first identified. Subsequently, experimentally proven physical interactions between these genes were extracted from scientific articles to create the influence network and formalize the boolean model. 
 
 For instance, it has been reported that AKT phosphorylates and stabilises MDM2, which in turn inhibits p53. Thus, a negative edge is added from AKT1/2 to p53 in the influence network and the logical rule for p53 includes the negation of these 2 genes: `p53: (DNAdamage | CTNNB1 | NICD | miR34) & ~SNAI2 & ~p73 & ~AKT1 & ~AKT2`.
 
@@ -24,7 +24,7 @@ We define `MetastasisModel` to include both the full and reduced model variables
 
 ### Utils 
 
-Along the way, We defined a set of versatile functions that are mostly adopted by `MetastasisModel` behaviors. For instance, a `MetastasisModel` instance makes use of 3 visualization functions to provide multiple options for drawing the influence network graph. The `split` argument allows the seperation of activation and inhibition subnetworks, while `interactive` uses pyviz library to create an interactive html file of the model graph. By default, the method saves the resulting plots, and they could be also shown if `show` is set to True.
+Along the way, We defined a set of versatile functions that are mostly adopted by `MetastasisModel` behaviors. For instance, a `MetastasisModel` instance makes use of 3 visualization functions to provide multiple options for drawing the influence network graph. The `split` argument allows the separation of activation and inhibition subnetworks, while `interactive` uses pyviz library to create an interactive html file of the model graph. By default, the method saves the resulting plots, and they could be also shown if `show` is set to True.
 
 ```python
 def draw_interaction_graph(self, name, split=False, interactive=False, show=False):
@@ -56,7 +56,7 @@ In the networks below, we highlight input nodes in yellow and phenotypes in grey
 
 ### Stable States
 
-We created multiple functionalities to handle stable states, most ntably `identify_stable_states()` which labels all identified stable states based on the criteria provided by the authors (the homeostatic phenotype has only CDH1 ON, there are 4 apoptosis phenotypes which differ based on the genes activated with each of them, etc.). Afterwards, we added the Inv and CCA stable state labels to match the authors results reported in controllability analysis. We label all other states "Novel". We also allow the option of setting `prevent_duplicates` to True to identify different states that would be classified within the same category but have small differences in the modules or genes activated with the main phenotype detected.
+We created multiple functionalities to handle stable states, most notably `identify_stable_states()` which labels all identified stable states based on the criteria provided by the authors (the homeostatic phenotype has only CDH1 ON, there are 4 apoptosis phenotypes which differ based on the genes activated with each of them, etc.). Afterwards, we added the Inv and CCA stable state labels to match the authors results reported in controllability analysis. We label all other states "Novel". We also allow the option of setting `prevent_duplicates` to True to identify different states that would be classified within the same category but have small differences in the modules or genes activated with the main phenotype detected.
 
 We highlight below the 9 stable states identified for both the full and reduced models, ordered by the number of active variables per state with the rows clustered based on their ON/OFF values over all stable states. 
 
@@ -72,7 +72,7 @@ We used BooN `equilibria` functionality to identify cyclic attractors that the a
 
 ### Model Robustness
 
-We defined a function `robustness` that recursively creates variations of the model with single changes of opertaors from And to Or, or vice versa. This allows us to compute the stable states for each and assess how they tend to evolve across models.
+We defined a function `robustness` that recursively creates variations of the model with single changes of operators from And to Or, or vice versa. This allows us to compute the stable states for each and assess how they tend to evolve across models.
 
 ### Controllability Analysis
 
