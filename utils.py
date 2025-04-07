@@ -162,6 +162,7 @@ def draw_act_inh_seperately(G, name, show=False):
 
 
 def draw_network_interactive(G, name='network_visualization'):
+    print("Drawing interactive network...")
     import os
     from pyvis.network import Network
 
@@ -211,17 +212,18 @@ def draw_network_interactive(G, name='network_visualization'):
                         width=edge_width, arrows=arrows, physics=True, group=group)
 
     output_path = f'plots/{name}_interactive_interactions_network.html'
-    net.save_graph(output_path)
-    print(f"Interactive network saved to {output_path}")
-    
+    # net.save_graph(output_path)
+    # print(f"Interactive network saved to {output_path}")
+    net.show(os.path.join(os.getcwd(), output_path), notebook=False)
     # Optional: Display network in notebook if running in jupyter
-    from IPython import get_ipython
-    ipython = get_ipython()
-    notebook = True if ipython is not None and 'IPKernelApp' in ipython.config else False
-    if notebook:
-        from IPython.display import IFrame, display, HTML
-        display(HTML(f'<a href="{output_path}" target="_blank">Open Network Visualization</a>'))
-        display(IFrame(output_path, width="100%", height=750))
+    # from IPython import get_ipython
+    # ipython = get_ipython()
+    # notebook = True #if ipython is not None and 'IPKernelApp' in ipython.config else False
+    # if notebook:
+    #     from IPython.display import IFrame, display, HTML
+    #     display(HTML(f'<a href="{output_path}" target="_blank">Open Network Visualization</a>'))
+    #     display(IFrame(output_path, width="100%", height=750))
+    # display(IFrame(output_path, width=800, height=600))
     
     
 def read_controllability_file(file):

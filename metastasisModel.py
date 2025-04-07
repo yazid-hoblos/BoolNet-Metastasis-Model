@@ -1,5 +1,8 @@
 from sympy import symbols
-from BooN import BooN, core2actions
+try:
+    from BooN import BooN, core2actions
+except ImportError:
+    from boon import * # linux accepts only import BooN; windows only import boon (case sensitivity issue)
 
 from utils import *
 
