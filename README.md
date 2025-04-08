@@ -64,7 +64,7 @@ We highlight below the 9 stable states identified for both the full and reduced 
 
 ![reduced_heatmap](plots/reduced_model_reordered_heatmap.png) 
 
-We highlight below a simulation of how one stable state is reached:
+We highlight below a simulation of how one stable state is reached (click the play button):
 
 ![simulation](plots/network_animation.gif)
 
