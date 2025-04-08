@@ -1,0 +1,710 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #e8f1ff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="DNAdamage">DNAdamage</option>
+                                
+                                    <option value="p63">p63</option>
+                                
+                                    <option value="AKT1">AKT1</option>
+                                
+                                    <option value="AKT2">AKT2</option>
+                                
+                                    <option value="miR203">miR203</option>
+                                
+                                    <option value="NICD">NICD</option>
+                                
+                                    <option value="p53">p53</option>
+                                
+                                    <option value="SNAI2">SNAI2</option>
+                                
+                                    <option value="TWIST1">TWIST1</option>
+                                
+                                    <option value="CTNNB1">CTNNB1</option>
+                                
+                                    <option value="miR200">miR200</option>
+                                
+                                    <option value="ZEB2">ZEB2</option>
+                                
+                                    <option value="VIM">VIM</option>
+                                
+                                    <option value="Apoptosis">Apoptosis</option>
+                                
+                                    <option value="miR34">miR34</option>
+                                
+                                    <option value="p73">p73</option>
+                                
+                                    <option value="ERK">ERK</option>
+                                
+                                    <option value="TGFbeta">TGFbeta</option>
+                                
+                                    <option value="SMAD">SMAD</option>
+                                
+                                    <option value="Invasion">Invasion</option>
+                                
+                                    <option value="CDH2">CDH2</option>
+                                
+                                    <option value="ECM">ECM</option>
+                                
+                                    <option value="GF">GF</option>
+                                
+                                    <option value="CDH1">CDH1</option>
+                                
+                                    <option value="ZEB1">ZEB1</option>
+                                
+                                    <option value="SNAI1">SNAI1</option>
+                                
+                                    <option value="p21">p21</option>
+                                
+                                    <option value="CellCycleArrest">CellCycleArrest</option>
+                                
+                                    <option value="Migration">Migration</option>
+                                
+                                    <option value="Metastasis">Metastasis</option>
+                                
+                                    <option value="DKK1">DKK1</option>
+                                
+                                    <option value="EMT">EMT</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#0055ff", "font": {"color": "#000c1f"}, "id": "DNAdamage", "label": "DNAdamage", "shape": "dot", "size": 30, "state_colors": "[\"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\", \"#0055ff\"]", "title": "DNAdamage\u003cbr\u003eInitial state: ON", "value": 5}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "p63", "label": "p63", "shape": "dot", "size": 85, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\"]", "title": "p63\u003cbr\u003eInitial state: ON", "value": 13}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "AKT1", "label": "AKT1", "shape": "dot", "size": 110, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "AKT1\u003cbr\u003eInitial state: ON", "value": 18}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "AKT2", "label": "AKT2", "shape": "dot", "size": 95, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "AKT2\u003cbr\u003eInitial state: ON", "value": 15}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "miR203", "label": "miR203", "shape": "dot", "size": 75, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "miR203\u003cbr\u003eInitial state: OFF", "value": 11}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "NICD", "label": "NICD", "shape": "dot", "size": 110, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "NICD\u003cbr\u003eInitial state: ON", "value": 18}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "p53", "label": "p53", "shape": "dot", "size": 125, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\"]", "title": "p53\u003cbr\u003eInitial state: ON", "value": 21}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "SNAI2", "label": "SNAI2", "shape": "dot", "size": 75, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "SNAI2\u003cbr\u003eInitial state: ON", "value": 11}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "TWIST1", "label": "TWIST1", "shape": "dot", "size": 70, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "TWIST1\u003cbr\u003eInitial state: ON", "value": 10}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "CTNNB1", "label": "CTNNB1", "shape": "dot", "size": 110, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "CTNNB1\u003cbr\u003eInitial state: OFF", "value": 18}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "miR200", "label": "miR200", "shape": "dot", "size": 105, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\"]", "title": "miR200\u003cbr\u003eInitial state: ON", "value": 17}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "ZEB2", "label": "ZEB2", "shape": "dot", "size": 85, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "ZEB2\u003cbr\u003eInitial state: ON", "value": 13}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "VIM", "label": "VIM", "shape": "dot", "size": 35, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "VIM\u003cbr\u003eInitial state: ON", "value": 3}, {"color": "#ff0000", "font": {"color": "#000c1f"}, "id": "Apoptosis", "label": "Apoptosis", "shape": "dot", "size": 35, "state_colors": "[\"#ff0000\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\"]", "title": "Apoptosis\u003cbr\u003eInitial state: ON", "value": 8}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "miR34", "label": "miR34", "shape": "dot", "size": 100, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "miR34\u003cbr\u003eInitial state: ON", "value": 16}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "p73", "label": "p73", "shape": "dot", "size": 75, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "p73\u003cbr\u003eInitial state: ON", "value": 11}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "ERK", "label": "ERK", "shape": "dot", "size": 60, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "ERK\u003cbr\u003eInitial state: ON", "value": 8}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "TGFbeta", "label": "TGFbeta", "shape": "dot", "size": 50, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "TGFbeta\u003cbr\u003eInitial state: OFF", "value": 6}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "SMAD", "label": "SMAD", "shape": "dot", "size": 50, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "SMAD\u003cbr\u003eInitial state: OFF", "value": 6}, {"color": "#ff0000", "font": {"color": "#000c1f"}, "id": "Invasion", "label": "Invasion", "shape": "dot", "size": 35, "state_colors": "[\"#ff0000\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\"]", "title": "Invasion\u003cbr\u003eInitial state: ON", "value": 4}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "CDH2", "label": "CDH2", "shape": "dot", "size": 60, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "CDH2\u003cbr\u003eInitial state: OFF", "value": 8}, {"color": "#7faaff", "font": {"color": "#000c1f"}, "id": "ECM", "label": "ECM", "shape": "dot", "size": 30, "state_colors": "[\"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\"]", "title": "ECM\u003cbr\u003eInitial state: OFF", "value": 4}, {"color": "#0055ff", "font": {"color": "#000c1f"}, "id": "GF", "label": "GF", "shape": "dot", "size": 30, "state_colors": "[\"#0055ff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\", \"#7faaff\"]", "title": "GF\u003cbr\u003eInitial state: ON", "value": 7}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "CDH1", "label": "CDH1", "shape": "dot", "size": 70, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\"]", "title": "CDH1\u003cbr\u003eInitial state: OFF", "value": 10}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "ZEB1", "label": "ZEB1", "shape": "dot", "size": 75, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "ZEB1\u003cbr\u003eInitial state: ON", "value": 11}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "SNAI1", "label": "SNAI1", "shape": "dot", "size": 85, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "SNAI1\u003cbr\u003eInitial state: ON", "value": 13}, {"color": "#c3c3c3", "font": {"color": "#000c1f"}, "id": "p21", "label": "p21", "shape": "dot", "size": 65, "state_colors": "[\"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\", \"#888888\"]", "title": "p21\u003cbr\u003eInitial state: OFF", "value": 9}, {"color": "#ff0000", "font": {"color": "#000c1f"}, "id": "CellCycleArrest", "label": "CellCycleArrest", "shape": "dot", "size": 35, "state_colors": "[\"#ff0000\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\", \"#ff0000\"]", "title": "CellCycleArrest\u003cbr\u003eInitial state: ON", "value": 6}, {"color": "#ff0000", "font": {"color": "#000c1f"}, "id": "Migration", "label": "Migration", "shape": "dot", "size": 35, "state_colors": "[\"#ff0000\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\"]", "title": "Migration\u003cbr\u003eInitial state: ON", "value": 9}, {"color": "#ff0000", "font": {"color": "#000c1f"}, "id": "Metastasis", "label": "Metastasis", "shape": "dot", "size": 35, "state_colors": "[\"#ff0000\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\"]", "title": "Metastasis\u003cbr\u003eInitial state: ON", "value": 1}, {"color": "#888888", "font": {"color": "#000c1f"}, "id": "DKK1", "label": "DKK1", "shape": "dot", "size": 35, "state_colors": "[\"#888888\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\", \"#c3c3c3\"]", "title": "DKK1\u003cbr\u003eInitial state: ON", "value": 3}, {"color": "#ff0000", "font": {"color": "#000c1f"}, "id": "EMT", "label": "EMT", "shape": "dot", "size": 35, "state_colors": "[\"#ff0000\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\", \"#ff7f7f\"]", "title": "EMT\u003cbr\u003eInitial state: ON", "value": 3}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#00aa00", "from": "DNAdamage", "group": "activation", "physics": true, "title": "DNAdamage activates p63", "to": "p63", "width": 1.894427190999916}, {"arrows": "to", "color": "#00aa00", "from": "DNAdamage", "group": "activation", "physics": true, "title": "DNAdamage activates p73", "to": "p73", "width": 1.894427190999916}, {"arrows": "to", "color": "#00aa00", "from": "DNAdamage", "group": "activation", "physics": true, "title": "DNAdamage activates p53", "to": "p53", "width": 1.894427190999916}, {"arrows": "to", "color": "#00aa00", "from": "DNAdamage", "group": "activation", "physics": true, "title": "DNAdamage activates DNAdamage", "to": "DNAdamage", "width": 1.894427190999916}, {"arrows": "to", "color": "#00aa00", "from": "p63", "group": "activation", "physics": true, "title": "p63 activates Apoptosis", "to": "Apoptosis", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "p63", "group": "inhibition", "physics": true, "title": "p63 inhibits NICD", "to": "NICD", "width": 2.442220510185596}, {"arrows": "to", "color": "#00aa00", "from": "p63", "group": "activation", "physics": true, "title": "p63 activates miR200", "to": "miR200", "width": 2.442220510185596}, {"arrows": "to", "color": "#00aa00", "from": "p63", "group": "activation", "physics": true, "title": "p63 activates p21", "to": "p21", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "p63", "group": "inhibition", "physics": true, "title": "p63 inhibits miR34", "to": "miR34", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "p63", "group": "inhibition", "physics": true, "title": "p63 inhibits CTNNB1", "to": "CTNNB1", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "p63", "group": "inhibition", "physics": true, "title": "p63 inhibits Migration", "to": "Migration", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits p63", "to": "p63", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits Apoptosis", "to": "Apoptosis", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits ERK", "to": "ERK", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits p21", "to": "p21", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits CellCycleArrest", "to": "CellCycleArrest", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits p73", "to": "p73", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits p53", "to": "p53", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits miR34", "to": "miR34", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits CTNNB1", "to": "CTNNB1", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT1", "group": "inhibition", "physics": true, "title": "AKT1 inhibits Migration", "to": "Migration", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT2", "group": "inhibition", "physics": true, "title": "AKT2 inhibits p63", "to": "p63", "width": 2.549193338482967}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT2", "group": "inhibition", "physics": true, "title": "AKT2 inhibits miR200", "to": "miR200", "width": 2.549193338482967}, {"arrows": "to", "color": "#00aa00", "from": "AKT2", "group": "activation", "physics": true, "title": "AKT2 activates p21", "to": "p21", "width": 2.549193338482967}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT2", "group": "inhibition", "physics": true, "title": "AKT2 inhibits p73", "to": "p73", "width": 2.549193338482967}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT2", "group": "inhibition", "physics": true, "title": "AKT2 inhibits p53", "to": "p53", "width": 2.549193338482967}, {"arrows": "to", "color": "#00aa00", "from": "AKT2", "group": "activation", "physics": true, "title": "AKT2 activates miR34", "to": "miR34", "width": 2.549193338482967}, {"arrows": "to;dash", "color": "#cc0000", "from": "AKT2", "group": "inhibition", "physics": true, "title": "AKT2 inhibits CDH1", "to": "CDH1", "width": 2.549193338482967}, {"arrows": "to", "color": "#00aa00", "from": "AKT2", "group": "activation", "physics": true, "title": "AKT2 activates Migration", "to": "Migration", "width": 2.549193338482967}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR203", "group": "inhibition", "physics": true, "title": "miR203 inhibits p63", "to": "p63", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR203", "group": "inhibition", "physics": true, "title": "miR203 inhibits SNAI2", "to": "SNAI2", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR203", "group": "inhibition", "physics": true, "title": "miR203 inhibits SMAD", "to": "SMAD", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR203", "group": "inhibition", "physics": true, "title": "miR203 inhibits ZEB2", "to": "ZEB2", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "miR203", "group": "activation", "physics": true, "title": "miR203 activates CellCycleArrest", "to": "CellCycleArrest", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR203", "group": "inhibition", "physics": true, "title": "miR203 inhibits AKT2", "to": "AKT2", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR203", "group": "inhibition", "physics": true, "title": "miR203 inhibits SNAI1", "to": "SNAI1", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates SNAI2", "to": "SNAI2", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates AKT1", "to": "AKT1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates ZEB1", "to": "ZEB1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates ERK", "to": "ERK", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates TGFbeta", "to": "TGFbeta", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates ZEB2", "to": "ZEB2", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates p21", "to": "p21", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates p53", "to": "p53", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates SNAI1", "to": "SNAI1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates TWIST1", "to": "TWIST1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "NICD", "group": "activation", "physics": true, "title": "NICD activates DKK1", "to": "DKK1", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "p53", "group": "inhibition", "physics": true, "title": "p53 inhibits p63", "to": "p63", "width": 2.8330302779823358}, {"arrows": "to;dash", "color": "#cc0000", "from": "p53", "group": "inhibition", "physics": true, "title": "p53 inhibits SNAI2", "to": "SNAI2", "width": 2.8330302779823358}, {"arrows": "to", "color": "#00aa00", "from": "p53", "group": "activation", "physics": true, "title": "p53 activates Apoptosis", "to": "Apoptosis", "width": 2.8330302779823358}, {"arrows": "to", "color": "#00aa00", "from": "p53", "group": "activation", "physics": true, "title": "p53 activates miR200", "to": "miR200", "width": 2.8330302779823358}, {"arrows": "to", "color": "#00aa00", "from": "p53", "group": "activation", "physics": true, "title": "p53 activates miR203", "to": "miR203", "width": 2.8330302779823358}, {"arrows": "to", "color": "#00aa00", "from": "p53", "group": "activation", "physics": true, "title": "p53 activates p21", "to": "p21", "width": 2.8330302779823358}, {"arrows": "to;dash", "color": "#cc0000", "from": "p53", "group": "inhibition", "physics": true, "title": "p53 inhibits p73", "to": "p73", "width": 2.8330302779823358}, {"arrows": "to", "color": "#00aa00", "from": "p53", "group": "activation", "physics": true, "title": "p53 activates miR34", "to": "miR34", "width": 2.8330302779823358}, {"arrows": "to;dash", "color": "#cc0000", "from": "p53", "group": "inhibition", "physics": true, "title": "p53 inhibits SNAI1", "to": "SNAI1", "width": 2.8330302779823358}, {"arrows": "to;dash", "color": "#cc0000", "from": "p53", "group": "inhibition", "physics": true, "title": "p53 inhibits CTNNB1", "to": "CTNNB1", "width": 2.8330302779823358}, {"arrows": "to", "color": "#00aa00", "from": "SNAI2", "group": "activation", "physics": true, "title": "SNAI2 activates ZEB1", "to": "ZEB1", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "SNAI2", "group": "inhibition", "physics": true, "title": "SNAI2 inhibits miR200", "to": "miR200", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "SNAI2", "group": "activation", "physics": true, "title": "SNAI2 activates ZEB2", "to": "ZEB2", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "SNAI2", "group": "inhibition", "physics": true, "title": "SNAI2 inhibits CDH1", "to": "CDH1", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "TWIST1", "group": "activation", "physics": true, "title": "TWIST1 activates SNAI2", "to": "SNAI2", "width": 2.264911064067352}, {"arrows": "to", "color": "#00aa00", "from": "TWIST1", "group": "activation", "physics": true, "title": "TWIST1 activates ZEB1", "to": "ZEB1", "width": 2.264911064067352}, {"arrows": "to", "color": "#00aa00", "from": "TWIST1", "group": "activation", "physics": true, "title": "TWIST1 activates ZEB2", "to": "ZEB2", "width": 2.264911064067352}, {"arrows": "to", "color": "#00aa00", "from": "TWIST1", "group": "activation", "physics": true, "title": "TWIST1 activates AKT2", "to": "AKT2", "width": 2.264911064067352}, {"arrows": "to", "color": "#00aa00", "from": "TWIST1", "group": "activation", "physics": true, "title": "TWIST1 activates CDH2", "to": "CDH2", "width": 2.264911064067352}, {"arrows": "to;dash", "color": "#cc0000", "from": "TWIST1", "group": "inhibition", "physics": true, "title": "TWIST1 inhibits CDH1", "to": "CDH1", "width": 2.264911064067352}, {"arrows": "to", "color": "#00aa00", "from": "TWIST1", "group": "activation", "physics": true, "title": "TWIST1 activates SNAI1", "to": "SNAI1", "width": 2.264911064067352}, {"arrows": "to", "color": "#00aa00", "from": "CTNNB1", "group": "activation", "physics": true, "title": "CTNNB1 activates SNAI2", "to": "SNAI2", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "CTNNB1", "group": "activation", "physics": true, "title": "CTNNB1 activates VIM", "to": "VIM", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "CTNNB1", "group": "activation", "physics": true, "title": "CTNNB1 activates Invasion", "to": "Invasion", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "CTNNB1", "group": "activation", "physics": true, "title": "CTNNB1 activates ZEB1", "to": "ZEB1", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "CTNNB1", "group": "inhibition", "physics": true, "title": "CTNNB1 inhibits TGFbeta", "to": "TGFbeta", "width": 2.697056274847714}, {"arrows": "to;dash", "color": "#cc0000", "from": "CTNNB1", "group": "inhibition", "physics": true, "title": "CTNNB1 inhibits SNAI1", "to": "SNAI1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "CTNNB1", "group": "activation", "physics": true, "title": "CTNNB1 activates TWIST1", "to": "TWIST1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "CTNNB1", "group": "activation", "physics": true, "title": "CTNNB1 activates DKK1", "to": "DKK1", "width": 2.697056274847714}, {"arrows": "to", "color": "#00aa00", "from": "miR200", "group": "activation", "physics": true, "title": "miR200 activates Apoptosis", "to": "Apoptosis", "width": 2.649242250247064}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR200", "group": "inhibition", "physics": true, "title": "miR200 inhibits SMAD", "to": "SMAD", "width": 2.649242250247064}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR200", "group": "inhibition", "physics": true, "title": "miR200 inhibits NICD", "to": "NICD", "width": 2.649242250247064}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR200", "group": "inhibition", "physics": true, "title": "miR200 inhibits ZEB1", "to": "ZEB1", "width": 2.649242250247064}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR200", "group": "inhibition", "physics": true, "title": "miR200 inhibits ZEB2", "to": "ZEB2", "width": 2.649242250247064}, {"arrows": "to", "color": "#00aa00", "from": "miR200", "group": "activation", "physics": true, "title": "miR200 activates CellCycleArrest", "to": "CellCycleArrest", "width": 2.649242250247064}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR200", "group": "inhibition", "physics": true, "title": "miR200 inhibits CTNNB1", "to": "CTNNB1", "width": 2.649242250247064}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR200", "group": "inhibition", "physics": true, "title": "miR200 inhibits Migration", "to": "Migration", "width": 2.649242250247064}, {"arrows": "to", "color": "#00aa00", "from": "ZEB2", "group": "activation", "physics": true, "title": "ZEB2 activates VIM", "to": "VIM", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB2", "group": "inhibition", "physics": true, "title": "ZEB2 inhibits Apoptosis", "to": "Apoptosis", "width": 2.442220510185596}, {"arrows": "to", "color": "#00aa00", "from": "ZEB2", "group": "activation", "physics": true, "title": "ZEB2 activates CellCycleArrest", "to": "CellCycleArrest", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB2", "group": "inhibition", "physics": true, "title": "ZEB2 inhibits miR34", "to": "miR34", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB2", "group": "inhibition", "physics": true, "title": "ZEB2 inhibits CDH1", "to": "CDH1", "width": 2.442220510185596}, {"arrows": "to", "color": "#00aa00", "from": "VIM", "group": "activation", "physics": true, "title": "VIM activates Migration", "to": "Migration", "width": 1.692820323027551}, {"arrows": "to", "color": "#00aa00", "from": "miR34", "group": "activation", "physics": true, "title": "miR34 activates Apoptosis", "to": "Apoptosis", "width": 2.6}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR34", "group": "inhibition", "physics": true, "title": "miR34 inhibits NICD", "to": "NICD", "width": 2.6}, {"arrows": "to", "color": "#00aa00", "from": "miR34", "group": "activation", "physics": true, "title": "miR34 activates CellCycleArrest", "to": "CellCycleArrest", "width": 2.6}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR34", "group": "inhibition", "physics": true, "title": "miR34 inhibits SNAI1", "to": "SNAI1", "width": 2.6}, {"arrows": "to;dash", "color": "#cc0000", "from": "miR34", "group": "inhibition", "physics": true, "title": "miR34 inhibits CTNNB1", "to": "CTNNB1", "width": 2.6}, {"arrows": "to", "color": "#00aa00", "from": "p73", "group": "activation", "physics": true, "title": "p73 activates Apoptosis", "to": "Apoptosis", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "p73", "group": "inhibition", "physics": true, "title": "p73 inhibits NICD", "to": "NICD", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "p73", "group": "activation", "physics": true, "title": "p73 activates miR200", "to": "miR200", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "p73", "group": "activation", "physics": true, "title": "p73 activates p21", "to": "p21", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "p73", "group": "activation", "physics": true, "title": "p73 activates miR34", "to": "miR34", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "ERK", "group": "inhibition", "physics": true, "title": "ERK inhibits Apoptosis", "to": "Apoptosis", "width": 2.131370849898476}, {"arrows": "to;dash", "color": "#cc0000", "from": "ERK", "group": "inhibition", "physics": true, "title": "ERK inhibits p21", "to": "p21", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "ERK", "group": "activation", "physics": true, "title": "ERK activates Migration", "to": "Migration", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "TGFbeta", "group": "activation", "physics": true, "title": "TGFbeta activates SMAD", "to": "SMAD", "width": 1.9797958971132712}, {"arrows": "to", "color": "#00aa00", "from": "TGFbeta", "group": "activation", "physics": true, "title": "TGFbeta activates AKT1", "to": "AKT1", "width": 1.9797958971132712}, {"arrows": "to", "color": "#00aa00", "from": "TGFbeta", "group": "activation", "physics": true, "title": "TGFbeta activates AKT2", "to": "AKT2", "width": 1.9797958971132712}, {"arrows": "to", "color": "#00aa00", "from": "SMAD", "group": "activation", "physics": true, "title": "SMAD activates Invasion", "to": "Invasion", "width": 1.9797958971132712}, {"arrows": "to", "color": "#00aa00", "from": "SMAD", "group": "activation", "physics": true, "title": "SMAD activates ERK", "to": "ERK", "width": 1.9797958971132712}, {"arrows": "to", "color": "#00aa00", "from": "SMAD", "group": "activation", "physics": true, "title": "SMAD activates p21", "to": "p21", "width": 1.9797958971132712}, {"arrows": "to", "color": "#00aa00", "from": "Invasion", "group": "activation", "physics": true, "title": "Invasion activates Migration", "to": "Migration", "width": 1.8}, {"arrows": "to", "color": "#00aa00", "from": "CDH2", "group": "activation", "physics": true, "title": "CDH2 activates Invasion", "to": "Invasion", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "CDH2", "group": "activation", "physics": true, "title": "CDH2 activates AKT1", "to": "AKT1", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "CDH2", "group": "activation", "physics": true, "title": "CDH2 activates ERK", "to": "ERK", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "CDH2", "group": "activation", "physics": true, "title": "CDH2 activates AKT2", "to": "AKT2", "width": 2.131370849898476}, {"arrows": "to;dash", "color": "#cc0000", "from": "CDH2", "group": "inhibition", "physics": true, "title": "CDH2 inhibits CTNNB1", "to": "CTNNB1", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "CDH2", "group": "activation", "physics": true, "title": "CDH2 activates EMT", "to": "EMT", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "CDH2", "group": "activation", "physics": true, "title": "CDH2 activates GF", "to": "GF", "width": 2.131370849898476}, {"arrows": "to", "color": "#00aa00", "from": "ECM", "group": "activation", "physics": true, "title": "ECM activates NICD", "to": "NICD", "width": 1.8}, {"arrows": "to", "color": "#00aa00", "from": "ECM", "group": "activation", "physics": true, "title": "ECM activates TGFbeta", "to": "TGFbeta", "width": 1.8}, {"arrows": "to", "color": "#00aa00", "from": "ECM", "group": "activation", "physics": true, "title": "ECM activates ECM", "to": "ECM", "width": 1.8}, {"arrows": "to", "color": "#00aa00", "from": "GF", "group": "activation", "physics": true, "title": "GF activates AKT1", "to": "AKT1", "width": 2.058300524425836}, {"arrows": "to", "color": "#00aa00", "from": "GF", "group": "activation", "physics": true, "title": "GF activates ERK", "to": "ERK", "width": 2.058300524425836}, {"arrows": "to", "color": "#00aa00", "from": "GF", "group": "activation", "physics": true, "title": "GF activates AKT2", "to": "AKT2", "width": 2.058300524425836}, {"arrows": "to", "color": "#00aa00", "from": "GF", "group": "activation", "physics": true, "title": "GF activates GF", "to": "GF", "width": 2.058300524425836}, {"arrows": "to;dash", "color": "#cc0000", "from": "CDH1", "group": "inhibition", "physics": true, "title": "CDH1 inhibits AKT1", "to": "AKT1", "width": 2.264911064067352}, {"arrows": "to;dash", "color": "#cc0000", "from": "CDH1", "group": "inhibition", "physics": true, "title": "CDH1 inhibits CTNNB1", "to": "CTNNB1", "width": 2.264911064067352}, {"arrows": "to;dash", "color": "#cc0000", "from": "CDH1", "group": "inhibition", "physics": true, "title": "CDH1 inhibits EMT", "to": "EMT", "width": 2.264911064067352}, {"arrows": "to;dash", "color": "#cc0000", "from": "CDH1", "group": "inhibition", "physics": true, "title": "CDH1 inhibits GF", "to": "GF", "width": 2.264911064067352}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB1", "group": "inhibition", "physics": true, "title": "ZEB1 inhibits miR203", "to": "miR203", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB1", "group": "inhibition", "physics": true, "title": "ZEB1 inhibits p73", "to": "p73", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB1", "group": "inhibition", "physics": true, "title": "ZEB1 inhibits miR34", "to": "miR34", "width": 2.32664991614216}, {"arrows": "to;dash", "color": "#cc0000", "from": "ZEB1", "group": "inhibition", "physics": true, "title": "ZEB1 inhibits CDH1", "to": "CDH1", "width": 2.32664991614216}, {"arrows": "to", "color": "#00aa00", "from": "SNAI1", "group": "activation", "physics": true, "title": "SNAI1 activates ZEB1", "to": "ZEB1", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "SNAI1", "group": "inhibition", "physics": true, "title": "SNAI1 inhibits miR200", "to": "miR200", "width": 2.442220510185596}, {"arrows": "to", "color": "#00aa00", "from": "SNAI1", "group": "activation", "physics": true, "title": "SNAI1 activates ZEB2", "to": "ZEB2", "width": 2.442220510185596}, {"arrows": "to;dash", "color": "#cc0000", "from": "SNAI1", "group": "inhibition", "physics": true, "title": "SNAI1 inhibits CDH1", "to": "CDH1", "width": 2.442220510185596}, {"arrows": "to", "color": "#00aa00", "from": "p21", "group": "activation", "physics": true, "title": "p21 activates CellCycleArrest", "to": "CellCycleArrest", "width": 2.2}, {"arrows": "to", "color": "#00aa00", "from": "Migration", "group": "activation", "physics": true, "title": "Migration activates Metastasis", "to": "Metastasis", "width": 2.2}, {"arrows": "to", "color": "#00aa00", "from": "EMT", "group": "activation", "physics": true, "title": "EMT activates Migration", "to": "Migration", "width": 1.692820323027551}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"forceAtlas2Based": {"gravitationalConstant": -50, "springLength": 100, "springConstant": 0.15, "damping": 0.9}, "minVelocity": 0.75, "solver": "forceAtlas2Based"}, "interaction": {"tooltipDelay": 200, "hideEdgesOnDrag": false, "hover": true}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+    <script type="text/javascript">
+      // Once the network is loaded
+      network.once("stabilizationIterationsDone", function() {
+        // Get nodes data
+        const nodes = network.body.data.nodes;
+        
+        // State history control elements
+        const container = document.getElementById('network-container');
+        
+        // Create control panel
+        const controls = document.createElement('div');
+        controls.className = 'controls';
+        controls.style.position = 'absolute';
+        controls.style.bottom = '10px';
+        controls.style.left = '10px';
+        controls.style.zIndex = '999';
+        controls.style.background = 'rgba(255, 255, 255, 0.8)';
+        controls.style.padding = '10px';
+        controls.style.borderRadius = '5px';
+        container.appendChild(controls);
+        
+        // Create buttons for state transitions
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '< Previous State';
+        prevBtn.onclick = () => showState(currentStep - 1);
+        
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = 'Next State >';
+        nextBtn.onclick = () => showState(currentStep + 1);
+        
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = 'Reset';
+        resetBtn.onclick = () => showState(0);
+        
+        const playBtn = document.createElement('button');
+        playBtn.textContent = 'Play Animation';
+        playBtn.onclick = playAnimation;
+        
+        // Create step indicator
+        const stepInfo = document.createElement('span');
+        stepInfo.style.marginLeft = '10px';
+        
+        // Add all elements to control panel
+        controls.appendChild(prevBtn);
+        controls.appendChild(nextBtn);
+        controls.appendChild(resetBtn);
+        controls.appendChild(playBtn);
+        controls.appendChild(stepInfo);
+        
+        // Get maximum number of steps from node data
+        let maxSteps = 0;
+        nodes.forEach(node => {
+          if (node.state_colors && node.state_colors.length > maxSteps) {
+            maxSteps = node.state_colors.length;
+          }
+        });
+        
+        // Current step in the animation
+        let currentStep = 0;
+        let animationInterval = null;
+        
+        // Function to update network to show specific state
+        function showState(step) {
+          // Validate step
+          if (step < 0) step = 0;
+          if (step >= maxSteps) step = maxSteps - 1;
+          
+          currentStep = step;
+          
+          // Update node colors based on state
+          nodes.forEach(node => {
+            if (node.state_colors && step < node.state_colors.length) {
+              node.color = node.state_colors[step];
+              
+              // Add visual indication of state
+              if (node.state_colors[step] === node.state_colors[0]) {
+                // Node is in its initial state
+                node.borderWidth = 1;
+              } else {
+                // Node state has changed
+                node.borderWidth = 3;
+                node.borderWidthSelected = 4;
+              }
+            }
+          });
+          
+          // Update buttons state
+          prevBtn.disabled = (currentStep === 0);
+          nextBtn.disabled = (currentStep === maxSteps - 1);
+          
+          // Update step indicator
+          stepInfo.textContent = `Step ${currentStep + 1} / ${maxSteps}`;
+          
+          // Redraw network
+          network.redraw();
+        }
+        
+        // Function to play animation
+        function playAnimation() {
+          if (animationInterval) {
+            // Stop if already playing
+            clearInterval(animationInterval);
+            animationInterval = null;
+            playBtn.textContent = 'Play Animation';
+          } else {
+            // Start animation
+            playBtn.textContent = 'Stop Animation';
+            animationInterval = setInterval(() => {
+              if (currentStep < maxSteps - 1) {
+                showState(currentStep + 1);
+              } else {
+                clearInterval(animationInterval);
+                animationInterval = null;
+                playBtn.textContent = 'Play Animation';
+              }
+            }, 1000); // Change state every second
+          }
+        }
+        
+        // Initialize display to first state
+        showState(0);
+      });
+    </script>
+    </body>
+</html>

@@ -1,0 +1,200 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "fixed": true, "id": "NICD", "label": "NICD", "shape": "dot", "x": -248.91282221835098, "y": -75.90738792953036}, {"color": "#97c2fc", "fixed": true, "id": "AKT1", "label": "AKT1", "shape": "dot", "x": 82.78922206148702, "y": -47.355294801170864}, {"color": "#97c2fc", "fixed": true, "id": "TGFbeta", "label": "TGFbeta", "shape": "dot", "x": -18.930907864679643, "y": -379.98295214446824}, {"color": "#97c2fc", "fixed": true, "id": "GF", "label": "GF", "shape": "dot", "x": 391.34039933548786, "y": 237.68781496230787}, {"color": "#97c2fc", "fixed": true, "id": "CDH2", "label": "CDH2", "shape": "dot", "x": 238.0240122509887, "y": 294.546312813787}, {"color": "#97c2fc", "fixed": true, "id": "CTNNB1", "label": "CTNNB1", "shape": "dot", "x": -60.29094749685614, "y": 123.39786156968049}, {"color": "#97c2fc", "fixed": true, "id": "miR34", "label": "miR34", "shape": "dot", "x": -147.0247500725253, "y": 46.50358537831227}, {"color": "#97c2fc", "fixed": true, "id": "p53", "label": "p53", "shape": "dot", "x": -130.43536287114816, "y": -100.34561172868386}, {"color": "#97c2fc", "fixed": true, "id": "CDH1", "label": "CDH1", "shape": "dot", "x": 82.46440848400538, "y": 335.2453757792405}, {"color": "#97c2fc", "fixed": true, "id": "SNAI1", "label": "SNAI1", "shape": "dot", "x": -245.8707726143987, "y": 279.1616407994363}, {"color": "#97c2fc", "fixed": true, "id": "AKT2", "label": "AKT2", "shape": "dot", "x": 100.22412062288373, "y": 25.593467141841874}, {"color": "#97c2fc", "fixed": true, "id": "SNAI2", "label": "SNAI2", "shape": "dot", "x": -219.42093524383034, "y": 219.54661380205462}, {"color": "#97c2fc", "fixed": true, "id": "TWIST1", "label": "TWIST1", "shape": "dot", "x": -92.12307068920141, "y": 379.1910347074492}, {"color": "#97c2fc", "fixed": true, "id": "ZEB2", "label": "ZEB2", "shape": "dot", "x": -37.350676325532895, "y": 247.1437995007241}, {"color": "#97c2fc", "fixed": true, "id": "ZEB1", "label": "ZEB1", "shape": "dot", "x": -334.37484652787293, "y": 164.43890618612386}, {"color": "#97c2fc", "fixed": true, "id": "miR200", "label": "miR200", "shape": "dot", "x": -65.31663704321123, "y": 0.9462301591473694}, {"color": "#97c2fc", "fixed": true, "id": "miR203", "label": "miR203", "shape": "dot", "x": -274.73979565070044, "y": 31.994736763029426}, {"color": "#97c2fc", "fixed": true, "id": "p63", "label": "p63", "shape": "dot", "x": -58.903067355852365, "y": -229.3767600697006}, {"color": "#97c2fc", "fixed": true, "id": "DKK1", "label": "DKK1", "shape": "dot", "x": -500.0, "y": 59.0402484658614}, {"color": "#97c2fc", "fixed": true, "id": "ECM", "label": "ECM", "shape": "dot", "x": -350.9187052143941, "y": -333.77957289508925}, {"color": "#97c2fc", "fixed": true, "id": "p73", "label": "p73", "shape": "dot", "x": -181.73924173769817, "y": -237.4586411715218}, {"color": "#97c2fc", "fixed": true, "id": "p21", "label": "p21", "shape": "dot", "x": 130.1262100620537, "y": -171.65254590485483}, {"color": "#97c2fc", "fixed": true, "id": "SMAD", "label": "SMAD", "shape": "dot", "x": 100.88798350175612, "y": -280.6353891098184}, {"color": "#97c2fc", "fixed": true, "id": "ERK", "label": "ERK", "shape": "dot", "x": 283.0739881377034, "y": -5.931330960453106}, {"color": "#97c2fc", "fixed": true, "id": "VIM", "label": "VIM", "shape": "dot", "x": 250.95555850906564, "y": 99.46016142445086}, {"color": "#97c2fc", "fixed": true, "id": "Migration", "label": "Migration", "shape": "dot", "x": 230.16047135339315, "y": -150.26636759801656}, {"color": "#97c2fc", "fixed": true, "id": "Metastasis", "label": "Metastasis", "shape": "dot", "x": 458.54477685941777, "y": -324.758190659899}, {"color": "#97c2fc", "fixed": true, "id": "DNAdamage", "label": "DNAdamage", "shape": "dot", "x": -317.84285702073964, "y": -367.7601358794499}, {"color": "#97c2fc", "fixed": true, "id": "Apoptosis", "label": "Apoptosis", "shape": "dot", "x": 119.53268942709006, "y": -125.42164913612774}, {"color": "#97c2fc", "fixed": true, "id": "Invasion", "label": "Invasion", "shape": "dot", "x": 299.1363039117256, "y": 19.37920944968845}, {"color": "#97c2fc", "fixed": true, "id": "EMT", "label": "EMT", "shape": "dot", "x": 387.7156348225444, "y": 149.29818996915986}, {"color": "#97c2fc", "fixed": true, "id": "CellCycleArrest", "label": "CellCycleArrest", "shape": "dot", "x": 129.2196166073901, "y": 118.0566411164895}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "green", "from": "NICD", "to": "AKT1"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "TWIST1"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "ZEB2"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "DKK1"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "p21"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "ZEB1"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "SNAI1"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "ERK"}, {"arrows": "to", "color": "red", "from": "NICD", "to": "p63"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "TGFbeta"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "SNAI2"}, {"arrows": "to", "color": "green", "from": "NICD", "to": "p53"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "CTNNB1"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "miR34"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "p21"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "ERK"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "p73"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "p63"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "p53"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "CellCycleArrest"}, {"arrows": "to", "color": "red", "from": "AKT1", "to": "Migration"}, {"arrows": "to", "color": "green", "from": "TGFbeta", "to": "AKT1"}, {"arrows": "to", "color": "green", "from": "TGFbeta", "to": "AKT2"}, {"arrows": "to", "color": "green", "from": "TGFbeta", "to": "SMAD"}, {"arrows": "to", "color": "green", "from": "GF", "to": "AKT1"}, {"arrows": "to", "color": "green", "from": "GF", "to": "AKT2"}, {"arrows": "to", "color": "green", "from": "GF", "to": "ERK"}, {"arrows": "to", "color": "green", "from": "GF", "to": "GF"}, {"arrows": "to", "color": "green", "from": "CDH2", "to": "AKT1"}, {"arrows": "to", "color": "red", "from": "CDH2", "to": "CTNNB1"}, {"arrows": "to", "color": "green", "from": "CDH2", "to": "AKT2"}, {"arrows": "to", "color": "green", "from": "CDH2", "to": "ERK"}, {"arrows": "to", "color": "green", "from": "CDH2", "to": "GF"}, {"arrows": "to", "color": "green", "from": "CDH2", "to": "Invasion"}, {"arrows": "to", "color": "green", "from": "CDH2", "to": "EMT"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "AKT1"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "TWIST1"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "DKK1"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "VIM"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "ZEB1"}, {"arrows": "to", "color": "red", "from": "CTNNB1", "to": "SNAI1"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "Invasion"}, {"arrows": "to", "color": "red", "from": "CTNNB1", "to": "TGFbeta"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "SNAI2"}, {"arrows": "to", "color": "green", "from": "CTNNB1", "to": "p53"}, {"arrows": "to", "color": "red", "from": "miR34", "to": "AKT1"}, {"arrows": "to", "color": "red", "from": "miR34", "to": "CTNNB1"}, {"arrows": "to", "color": "red", "from": "miR34", "to": "SNAI1"}, {"arrows": "to", "color": "red", "from": "miR34", "to": "AKT2"}, {"arrows": "to", "color": "green", "from": "miR34", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "miR34", "to": "NICD"}, {"arrows": "to", "color": "green", "from": "miR34", "to": "p53"}, {"arrows": "to", "color": "green", "from": "miR34", "to": "CellCycleArrest"}, {"arrows": "to", "color": "red", "from": "p53", "to": "AKT1"}, {"arrows": "to", "color": "red", "from": "p53", "to": "CTNNB1"}, {"arrows": "to", "color": "green", "from": "p53", "to": "miR34"}, {"arrows": "to", "color": "green", "from": "p53", "to": "p21"}, {"arrows": "to", "color": "red", "from": "p53", "to": "SNAI1"}, {"arrows": "to", "color": "red", "from": "p53", "to": "AKT2"}, {"arrows": "to", "color": "green", "from": "p53", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "p53", "to": "p73"}, {"arrows": "to", "color": "green", "from": "p53", "to": "miR203"}, {"arrows": "to", "color": "red", "from": "p53", "to": "p63"}, {"arrows": "to", "color": "red", "from": "p53", "to": "NICD"}, {"arrows": "to", "color": "red", "from": "p53", "to": "SNAI2"}, {"arrows": "to", "color": "green", "from": "p53", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "CDH1", "to": "AKT1"}, {"arrows": "to", "color": "red", "from": "CDH1", "to": "CTNNB1"}, {"arrows": "to", "color": "red", "from": "CDH1", "to": "GF"}, {"arrows": "to", "color": "red", "from": "CDH1", "to": "EMT"}, {"arrows": "to", "color": "red", "from": "SNAI1", "to": "CDH1"}, {"arrows": "to", "color": "green", "from": "SNAI1", "to": "TWIST1"}, {"arrows": "to", "color": "green", "from": "SNAI1", "to": "ZEB2"}, {"arrows": "to", "color": "red", "from": "SNAI1", "to": "miR34"}, {"arrows": "to", "color": "green", "from": "SNAI1", "to": "ZEB1"}, {"arrows": "to", "color": "red", "from": "SNAI1", "to": "miR203"}, {"arrows": "to", "color": "red", "from": "SNAI1", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "AKT2", "to": "CDH1"}, {"arrows": "to", "color": "green", "from": "AKT2", "to": "miR34"}, {"arrows": "to", "color": "green", "from": "AKT2", "to": "p21"}, {"arrows": "to", "color": "red", "from": "AKT2", "to": "p73"}, {"arrows": "to", "color": "red", "from": "AKT2", "to": "p63"}, {"arrows": "to", "color": "red", "from": "AKT2", "to": "p53"}, {"arrows": "to", "color": "green", "from": "AKT2", "to": "Migration"}, {"arrows": "to", "color": "red", "from": "AKT2", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "SNAI2", "to": "CDH1"}, {"arrows": "to", "color": "green", "from": "SNAI2", "to": "ZEB2"}, {"arrows": "to", "color": "green", "from": "SNAI2", "to": "ZEB1"}, {"arrows": "to", "color": "red", "from": "SNAI2", "to": "p53"}, {"arrows": "to", "color": "red", "from": "SNAI2", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "TWIST1", "to": "CDH1"}, {"arrows": "to", "color": "green", "from": "TWIST1", "to": "ZEB2"}, {"arrows": "to", "color": "green", "from": "TWIST1", "to": "ZEB1"}, {"arrows": "to", "color": "green", "from": "TWIST1", "to": "SNAI1"}, {"arrows": "to", "color": "green", "from": "TWIST1", "to": "AKT2"}, {"arrows": "to", "color": "green", "from": "TWIST1", "to": "SNAI2"}, {"arrows": "to", "color": "green", "from": "TWIST1", "to": "CDH2"}, {"arrows": "to", "color": "red", "from": "ZEB2", "to": "CDH1"}, {"arrows": "to", "color": "red", "from": "ZEB2", "to": "miR34"}, {"arrows": "to", "color": "green", "from": "ZEB2", "to": "VIM"}, {"arrows": "to", "color": "red", "from": "ZEB2", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "ZEB2", "to": "miR203"}, {"arrows": "to", "color": "green", "from": "ZEB2", "to": "CellCycleArrest"}, {"arrows": "to", "color": "red", "from": "ZEB2", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "ZEB1", "to": "CDH1"}, {"arrows": "to", "color": "red", "from": "ZEB1", "to": "miR34"}, {"arrows": "to", "color": "red", "from": "ZEB1", "to": "p73"}, {"arrows": "to", "color": "red", "from": "ZEB1", "to": "miR203"}, {"arrows": "to", "color": "red", "from": "ZEB1", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "ZEB2"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "CTNNB1"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "ZEB1"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "SMAD"}, {"arrows": "to", "color": "green", "from": "miR200", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "NICD"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "SNAI2"}, {"arrows": "to", "color": "green", "from": "miR200", "to": "CellCycleArrest"}, {"arrows": "to", "color": "red", "from": "miR200", "to": "Migration"}, {"arrows": "to", "color": "red", "from": "miR203", "to": "ZEB2"}, {"arrows": "to", "color": "red", "from": "miR203", "to": "SNAI1"}, {"arrows": "to", "color": "red", "from": "miR203", "to": "AKT2"}, {"arrows": "to", "color": "red", "from": "miR203", "to": "SMAD"}, {"arrows": "to", "color": "red", "from": "miR203", "to": "p63"}, {"arrows": "to", "color": "red", "from": "miR203", "to": "SNAI2"}, {"arrows": "to", "color": "green", "from": "miR203", "to": "CellCycleArrest"}, {"arrows": "to", "color": "red", "from": "p63", "to": "CTNNB1"}, {"arrows": "to", "color": "red", "from": "p63", "to": "miR34"}, {"arrows": "to", "color": "green", "from": "p63", "to": "p21"}, {"arrows": "to", "color": "green", "from": "p63", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "p63", "to": "NICD"}, {"arrows": "to", "color": "red", "from": "p63", "to": "Migration"}, {"arrows": "to", "color": "green", "from": "p63", "to": "miR200"}, {"arrows": "to", "color": "red", "from": "DKK1", "to": "CTNNB1"}, {"arrows": "to", "color": "green", "from": "ECM", "to": "ECM"}, {"arrows": "to", "color": "green", "from": "ECM", "to": "NICD"}, {"arrows": "to", "color": "green", "from": "ECM", "to": "TGFbeta"}, {"arrows": "to", "color": "green", "from": "p73", "to": "miR34"}, {"arrows": "to", "color": "green", "from": "p73", "to": "p21"}, {"arrows": "to", "color": "green", "from": "p73", "to": "Apoptosis"}, {"arrows": "to", "color": "red", "from": "p73", "to": "NICD"}, {"arrows": "to", "color": "red", "from": "p73", "to": "p53"}, {"arrows": "to", "color": "green", "from": "p73", "to": "miR200"}, {"arrows": "to", "color": "green", "from": "p21", "to": "CellCycleArrest"}, {"arrows": "to", "color": "green", "from": "SMAD", "to": "p21"}, {"arrows": "to", "color": "green", "from": "SMAD", "to": "ERK"}, {"arrows": "to", "color": "green", "from": "SMAD", "to": "Invasion"}, {"arrows": "to", "color": "red", "from": "ERK", "to": "p21"}, {"arrows": "to", "color": "red", "from": "ERK", "to": "Apoptosis"}, {"arrows": "to", "color": "green", "from": "ERK", "to": "Migration"}, {"arrows": "to", "color": "green", "from": "VIM", "to": "Migration"}, {"arrows": "to", "color": "green", "from": "Migration", "to": "Metastasis"}, {"arrows": "to", "color": "green", "from": "DNAdamage", "to": "DNAdamage"}, {"arrows": "to", "color": "green", "from": "DNAdamage", "to": "p73"}, {"arrows": "to", "color": "green", "from": "DNAdamage", "to": "p63"}, {"arrows": "to", "color": "green", "from": "DNAdamage", "to": "p53"}, {"arrows": "to", "color": "green", "from": "Invasion", "to": "Migration"}, {"arrows": "to", "color": "green", "from": "EMT", "to": "Migration"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"shape": "dot", "size": 25, "font": {"size": 14, "color": "#343434"}}, "edges": {"arrows": {"to": {"enabled": true}}, "color": {"inherit": true}, "smooth": false}, "physics": {"enabled": true, "stabilization": {"iterations": 100}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+    <script type="text/javascript">
+    let states = [{"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 0, "CDH2": 1, "CTNNB1": 1, "miR34": 1, "p53": 0, "CDH1": 0, "SNAI1": 0, "AKT2": 0, "SNAI2": 0, "TWIST1": 1, "ZEB2": 0, "ZEB1": 1, "miR200": 0, "miR203": 1, "p63": 1, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 1, "SMAD": 1, "ERK": 1, "VIM": 0, "Migration": 1, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 1, "Invasion": 1, "EMT": 1, "CellCycleArrest": 0}, {"NICD": 0, "AKT1": 0, "TGFbeta": 0, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 1, "CDH1": 0, "SNAI1": 0, "AKT2": 0, "SNAI2": 0, "TWIST1": 1, "ZEB2": 0, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 0, "ERK": 1, "VIM": 1, "Migration": 0, "Metastasis": 1, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 1, "EMT": 1, "CellCycleArrest": 1}, {"NICD": 0, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 0, "AKT2": 0, "SNAI2": 0, "TWIST1": 0, "ZEB2": 0, "ZEB1": 0, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 0, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 0, "ERK": 1, "VIM": 0, "Migration": 0, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 0, "EMT": 1, "CellCycleArrest": 0}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 0, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 1, "SNAI1": 0, "AKT2": 0, "SNAI2": 0, "TWIST1": 0, "ZEB2": 0, "ZEB1": 0, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 0, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 0, "Migration": 0, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 0, "EMT": 1, "CellCycleArrest": 0}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 0, "CDH2": 0, "CTNNB1": 0, "miR34": 0, "p53": 1, "CDH1": 1, "SNAI1": 1, "AKT2": 0, "SNAI2": 1, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 0, "Migration": 0, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 0, "EMT": 0, "CellCycleArrest": 0}, {"NICD": 0, "AKT1": 0, "TGFbeta": 1, "GF": 0, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 0, "AKT2": 0, "SNAI2": 0, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 1, "Migration": 0, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 0, "EMT": 0, "CellCycleArrest": 1}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 1, "AKT2": 1, "SNAI2": 1, "TWIST1": 0, "ZEB2": 0, "ZEB1": 0, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 0, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 1, "Migration": 0, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 1, "EMT": 1, "CellCycleArrest": 1}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 0, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 1, "AKT2": 0, "SNAI2": 1, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 0, "Migration": 1, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 1, "EMT": 1, "CellCycleArrest": 0}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 1, "AKT2": 1, "SNAI2": 1, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 1, "Migration": 0, "Metastasis": 1, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 0, "EMT": 0, "CellCycleArrest": 1}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 1, "AKT2": 1, "SNAI2": 1, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 1, "Migration": 0, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 1, "EMT": 1, "CellCycleArrest": 1}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 1, "AKT2": 1, "SNAI2": 1, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 1, "Migration": 1, "Metastasis": 0, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 1, "EMT": 1, "CellCycleArrest": 1}, {"NICD": 1, "AKT1": 0, "TGFbeta": 1, "GF": 1, "CDH2": 1, "CTNNB1": 0, "miR34": 0, "p53": 0, "CDH1": 0, "SNAI1": 1, "AKT2": 1, "SNAI2": 1, "TWIST1": 1, "ZEB2": 1, "ZEB1": 1, "miR200": 0, "miR203": 0, "p63": 0, "DKK1": 1, "ECM": 1, "p73": 0, "p21": 0, "SMAD": 1, "ERK": 1, "VIM": 1, "Migration": 1, "Metastasis": 1, "DNAdamage": 0, "Apoptosis": 0, "Invasion": 1, "EMT": 1, "CellCycleArrest": 1}];
+    let curr = 0;
+    let interval = null;
+
+    function updateNodes(stateIndex) {
+        let state = states[stateIndex];
+        for (let nodeId in state) {
+            let newColor = state[nodeId] === 1 ? 'limegreen' : 'lightgray';
+            nodes.update({id: nodeId, color: {background: newColor} });
+        }
+        document.getElementById("stateSlider").value = stateIndex;
+        document.getElementById("stepLabel").innerText = "Time Step: " + stateIndex;
+    }
+
+    function play() {
+        if (interval) return;
+        interval = setInterval(() => {
+            curr = (curr + 1) % states.length;
+            updateNodes(curr);
+        }, 1000);
+    }
+
+    function pause() {
+        clearInterval(interval);
+        interval = null;
+    }
+
+    function setupControls() {
+        // Slider
+        let slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = 0;
+        slider.max = states.length - 1;
+        slider.value = 0;
+        slider.id = "stateSlider";
+        slider.oninput = function() {
+            curr = parseInt(this.value);
+            updateNodes(curr);
+        };
+
+        // Label
+        let label = document.createElement("div");
+        label.id = "stepLabel";
+        label.style = "margin-top:10px; font-weight:bold;";
+        label.innerText = "Time Step: 0";
+
+        // Play/Pause buttons
+        let playBtn = document.createElement("button");
+        playBtn.innerText = "▶ Play";
+        playBtn.onclick = play;
+        playBtn.style = "margin-right: 10px;";
+
+        let pauseBtn = document.createElement("button");
+        pauseBtn.innerText = "⏸ Pause";
+        pauseBtn.onclick = pause;
+
+        // Container
+        let container = document.createElement("div");
+        container.style = "padding: 10px;";
+        container.appendChild(slider);
+        container.appendChild(label);
+        container.appendChild(playBtn);
+        container.appendChild(pauseBtn);
+
+        document.body.insertBefore(container, document.body.firstChild);
+        updateNodes(0);
+    }
+
+    window.addEventListener('load', setupControls);
+    </script>
+    
+</body>
+</html>

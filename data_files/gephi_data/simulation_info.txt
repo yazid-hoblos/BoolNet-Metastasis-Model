@@ -1,0 +1,73 @@
+Boolean Network Simulation Summary
+================================
+
+Total time steps: 12
+Stable state reached at step: 11
+
+Initial state:
+  NICD: 1
+  AKT1: 0
+  TGFbeta: 1
+  GF: 0
+  CDH2: 1
+  CTNNB1: 1
+  miR34: 1
+  p53: 0
+  CDH1: 0
+  SNAI1: 0
+  AKT2: 0
+  SNAI2: 0
+  TWIST1: 1
+  ZEB2: 0
+  ZEB1: 1
+  miR200: 0
+  miR203: 1
+  p63: 1
+  DKK1: 1
+  ECM: 1
+  p73: 0
+  p21: 1
+  SMAD: 1
+  ERK: 1
+  VIM: 0
+  Migration: 1
+  Metastasis: 0
+  DNAdamage: 0
+  Apoptosis: 1
+  Invasion: 1
+  EMT: 1
+  CellCycleArrest: 0
+
+Final stable state:
+  NICD: 1
+  AKT1: 0
+  TGFbeta: 1
+  GF: 1
+  CDH2: 1
+  CTNNB1: 0
+  miR34: 0
+  p53: 0
+  CDH1: 0
+  SNAI1: 1
+  AKT2: 1
+  SNAI2: 1
+  TWIST1: 1
+  ZEB2: 1
+  ZEB1: 1
+  miR200: 0
+  miR203: 0
+  p63: 0
+  DKK1: 1
+  ECM: 1
+  p73: 0
+  p21: 0
+  SMAD: 1
+  ERK: 1
+  VIM: 1
+  Migration: 1
+  Metastasis: 1
+  DNAdamage: 0
+  Apoptosis: 0
+  Invasion: 1
+  EMT: 1
+  CellCycleArrest: 1

@@ -347,3 +347,446 @@ def plot_controllability_bar_plot(filename):
     plt.savefig(f'plots/{filename}_controllability_analysis_bar_plot.png', dpi=300)
 
 
+def evaluate_rule(rule_expr, input_values):
+    import re
+    """
+    Evaluates a boolean rule expression like "WNT_pthw & (Notch_pthw | TGFb_pthw | GF | EMTreg) & ~miRNA & ~p53 & ~Ecadh"
+    
+    Parameters:
+    -----------
+    rule_expr : str
+        Boolean rule expression
+    input_values : dict
+        Dictionary mapping node names to their boolean values
+    
+    Returns:
+    --------
+    bool : Result of rule evaluation
+    """
+    # Replace operators with Python equivalents
+    rule_py = rule_expr.replace('&', ' and ').replace('|', ' or ').replace('~', ' not ')
+    
+    # Replace node names with their values
+    for node, value in input_values.items():
+        node_str = str(node)
+        # Replace whole words only to avoid partial matches
+        rule_py = re.sub(r'\b' + re.escape(node_str) + r'\b', str(value), rule_py)
+    
+    # Replace any remaining node names (not in input_values) with False
+    # This handles nodes that might be in the rule but not in the predecessors
+    remaining_nodes = re.findall(r'\b[A-Za-z0-9_]+\b', rule_py)
+    for node in remaining_nodes:
+        if node not in ('True', 'False', 'and', 'or', 'not'):
+            rule_py = re.sub(r'\b' + node + r'\b', 'False', rule_py)
+    
+    try:
+        # Evaluate the transformed expression
+        return bool(eval(rule_py))
+    except Exception as e:
+        print(f"Error evaluating rule: {rule_expr} -> {rule_py}")
+        print(f"Exception: {e}")
+        return False
+    
+    
+def simulate_boolean_network_for_gephi(G, model, initial_state=None, steps=100, output_dir='gephi_data'):
+    
+    import os
+    import random
+    import csv
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    s=model.symbols
+    # Initialize state randomly if not provided
+    if initial_state is None:
+        initial_state = {}
+        for node in G.nodes():
+            initial_state[node] = bool(random.getrandbits(1))
+    
+    state_history = [initial_state.copy()]
+    current_state = initial_state.copy()
+    stable_state_reached = False
+    stable_at_step = None
+    
+    print("Running simulation...")
+    for step in range(steps):
+        next_state = {}
+        
+        for node in G.nodes():
+            node_str = s[str(node)]
+            if node_str in model.model.desc:
+                rule = str(model.model.desc[node_str])
+                input_values = {str(n): current_state.get(n, False) for n in G.nodes()}
+                
+                try:
+                    next_state[node] = evaluate_rule(rule, input_values)
+                except Exception as e:
+                    print(f"Error evaluating rule for {node}: {e}")
+                    next_state[node] = current_state.get(node, False)
+            else:
+                next_state[node] = current_state.get(node, False)
+        
+        if next_state == current_state:
+            stable_state_reached = True
+            stable_at_step = step
+            print(f"Stable state reached at step {step}")
+            # print all nodes that are active in the stable state
+            active_nodes = [str(node) for node, state in next_state.items() if state]
+            print(len(active_nodes), "active nodes in stable state")
+            print(f"Active nodes in stable state: {', '.join(active_nodes)}")
+            break
+        
+        cycle_detected = False
+        for i, prev_state in enumerate(state_history):
+            if next_state == prev_state:
+                cycle_start = i
+                cycle_length = len(state_history) - i
+                print(f"Cycle detected: States repeat from step {cycle_start} with period {cycle_length}")
+                cycle_detected = True
+                break
+        
+        if cycle_detected:
+            break
+        
+        current_state = next_state.copy()
+        state_history.append(current_state.copy())
+    
+    print(f"Simulation completed with {len(state_history)} states")
+    
+    # Create node attributes file for Gephi
+    nodes_file = os.path.join(output_dir, 'nodes.csv')
+    with open(nodes_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        
+        # Write header
+        header = ['Id', 'Label', 'Type']
+        # Add columns for each time step
+        for t in range(len(state_history)):
+            header.append(f'State_t{t}')
+        writer.writerow(header)
+        
+        for node in G.nodes():
+            node_str = str(node)
+            
+            phenotypes = ['Metastasis', 'Apoptosis', 'CellCycleArrest', 'CCA', 'Invasion', 'Migration', 'EMT']
+            input_nodes = ['DNAdamage', 'ECM', 'ECMicroenv', 'GF']
+            
+            if node_str in phenotypes:
+                node_type = 'Phenotype'
+            elif node_str in input_nodes:
+                node_type = 'Input'
+            else:
+                node_type = 'Regular'
+                
+            # Create row with node data
+            row = [node_str, node_str, node_type]
+            
+            # Add state at each time step
+            for state in state_history:
+                row.append(1 if state.get(node, False) else 0)
+                
+            writer.writerow(row)
+    
+    # Create edges file for Gephi
+    edges_file = os.path.join(output_dir, 'edges.csv')
+    with open(edges_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        
+        # Write header
+        writer.writerow(['Source', 'Target', 'Type', 'Sign', 'Weight'])
+        
+        # Write data for each edge
+        for u, v, data in G.edges(data=True):
+            edge_type = 'Directed'
+            sign = data.get('sign', 0)
+            weight = 1.0
+            
+            writer.writerow([str(u), str(v), edge_type, sign, weight])
+    
+    # Create summary file with simulation info
+    summary_file = os.path.join(output_dir, 'simulation_info.txt')
+    with open(summary_file, 'w') as f:
+        f.write(f"Boolean Network Simulation Summary\n")
+        f.write(f"================================\n\n")
+        f.write(f"Total time steps: {len(state_history)}\n")
+        
+        if stable_state_reached:
+            f.write(f"Stable state reached at step: {stable_at_step}\n")
+        elif cycle_detected:
+            f.write(f"Cycle detected starting at step {cycle_start} with period {cycle_length}\n")
+        else:
+            f.write(f"No stable state or cycle detected within {steps} steps\n")
+            
+        f.write("\nInitial state:\n")
+        for node, state in initial_state.items():
+            f.write(f"  {node}: {1 if state else 0}\n")
+            
+        if stable_state_reached:
+            f.write("\nFinal stable state:\n")
+            for node, state in state_history[-1].items():
+                f.write(f"  {node}: {1 if state else 0}\n")
+    
+    timeseries_file = os.path.join(output_dir, 'timeseries.csv')
+    with open(timeseries_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        
+        header = ['Timestamp']
+        header.extend([str(node) for node in G.nodes()])
+        writer.writerow(header)
+        
+        for t, state in enumerate(state_history):
+            row = [t]
+            for node in G.nodes():
+                row.append(1 if state.get(node, False) else 0)
+            writer.writerow(row)
+    
+    # print(f"Files exported to {output_dir} directory:")
+    # print(f"  - nodes.csv: Node data with states at each time step")
+    # print(f"  - edges.csv: Edge relationships")
+    # print(f"  - simulation_info.txt: Summary of the simulation")
+    # print(f"  - timeseries.csv: Time series data for dynamic visualization")
+    # print("\nImport instructions for Gephi:")
+    # print("1. Import nodes.csv as nodes table")
+    # print("2. Import edges.csv as edges table")
+    # print("3. Use the 'State_t#' columns for dynamic coloring of nodes")
+    # print("4. For dynamic visualization, use the timeseries.csv with the Dynamic Filter plugin")
+
+# Helper function to evaluate boolean rules
+def evaluate_rule(rule_expr, input_values):
+    """
+    Evaluates a boolean rule expression like "WNT_pthw & (Notch_pthw | TGFb_pthw | GF | EMTreg) & ~miRNA & ~p53 & ~Ecadh"
+    
+    Parameters:
+    -----------
+    rule_expr : str
+        Boolean rule expression
+    input_values : dict
+        Dictionary mapping node names to their boolean values
+    
+    Returns:
+    --------
+    bool : Result of rule evaluation
+    """
+    import re
+    
+    # Replace operators with Python equivalents
+    rule_py = rule_expr.replace('&', ' and ').replace('|', ' or ').replace('~', ' not ')
+    
+    # Replace node names with their values
+    for node, value in input_values.items():
+        node_str = str(node)
+        # Replace whole words only to avoid partial matches
+        rule_py = re.sub(r'\b' + re.escape(node_str) + r'\b', str(value), rule_py)
+    
+    # Replace any remaining node names (not in input_values) with False
+    # This handles nodes that might be in the rule but not in the predecessors
+    remaining_nodes = re.findall(r'\b[A-Za-z0-9_]+\b', rule_py)
+    for node in remaining_nodes:
+        if node not in ('True', 'False', 'and', 'or', 'not'):
+            rule_py = re.sub(r'\b' + node + r'\b', 'False', rule_py)
+    
+    try:
+        # Evaluate the transformed expression
+        return bool(eval(rule_py))
+    except Exception as e:
+        print(f"Error evaluating rule: {rule_expr} -> {rule_py}")
+        print(f"Exception: {e}")
+        return False
+    
+
+
+
+
+from pyvis.network import Network
+import pandas as pd
+import networkx as nx
+
+def simulate_evolution(model):
+    simulate_boolean_network_for_gephi(model.model.interaction_graph, model, steps=1000, output_dir='gephi_data')
+    # Load data
+    df = pd.read_csv('gephi_data/timeseries.csv')
+    timestamps = df['Timestamp']
+    df_states = df.drop(columns='Timestamp')
+
+    # Network
+    G = model.model.interaction_graph
+    net = Network(height='750px', width='100%', directed=True, notebook=False)
+    
+    import networkx as nx
+    pos = nx.kamada_kawai_layout(G)
+    # for node in G.nodes():
+    #     init_state = int(df_states.iloc[0][str(node)])
+    #     color = 'limegreen' if init_state == 1 else 'lightgray'
+    #     x, y = pos[node]
+    #     net.add_node(str(node), label=str(node), color=color, x=x*1000, y=y*1000, fixed=True)
+
+    for node in G.nodes():
+        x,y= pos[node]
+        net.add_node(str(node), label=str(node),x=x*500, y=y*500, fixed=True)
+
+    for source, target,data in G.edges(data=True):
+        if 'sign' in data:
+            if data['sign'] > 0:
+                net.add_edge(str(source), str(target), color='green') 
+            else:
+                net.add_edge(str(source), str(target), color='red')
+
+    # Generate states JS data
+    js_data = []
+    for i, row in df_states.iterrows():
+        state = {str(k): int(v) for k, v in row.items()}
+        js_data.append(state)
+
+    # Add JavaScript to control state changes
+    net.set_options("""
+    var options = {
+      "nodes": {
+        "shape": "dot",
+        "size": 25,
+        "font": { "size": 14, "color": "#343434" }
+      },
+      "edges": {
+        "arrows": { "to": { "enabled": true } },
+        "color": { "inherit": true },
+        "smooth": false
+      },
+      "physics": {
+        "enabled": true,
+        "stabilization": { "iterations": 100 }
+      }
+    }
+    """)
+
+    # Save and manually inject custom JS
+    net.show("network_simulation.html", notebook=False)
+
+    # Inject JS for slider and animation
+    with open("network_simulation.html", "r") as f:
+        html = f.read()
+
+    import json
+    js_json = json.dumps(js_data)
+
+    js_script = f"""
+    <script type="text/javascript">
+    let states = {js_json};
+    let curr = 0;
+    let interval = null;
+
+    function updateNodes(stateIndex) {{
+        let state = states[stateIndex];
+        for (let nodeId in state) {{
+            let newColor = state[nodeId] === 1 ? 'limegreen' : 'lightgray';
+            nodes.update({{id: nodeId, color: {{background: newColor}} }});
+        }}
+        document.getElementById("stateSlider").value = stateIndex;
+        document.getElementById("stepLabel").innerText = "Time Step: " + stateIndex;
+    }}
+
+    function play() {{
+        if (interval) return;
+        interval = setInterval(() => {{
+            curr = (curr + 1) % states.length;
+            updateNodes(curr);
+        }}, 1000);
+    }}
+
+    function pause() {{
+        clearInterval(interval);
+        interval = null;
+    }}
+
+    function setupControls() {{
+        // Slider
+        let slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = 0;
+        slider.max = states.length - 1;
+        slider.value = 0;
+        slider.id = "stateSlider";
+        slider.oninput = function() {{
+            curr = parseInt(this.value);
+            updateNodes(curr);
+        }};
+
+        // Label
+        let label = document.createElement("div");
+        label.id = "stepLabel";
+        label.style = "margin-top:10px; font-weight:bold;";
+        label.innerText = "Time Step: 0";
+
+        // Play/Pause buttons
+        let playBtn = document.createElement("button");
+        playBtn.innerText = "▶ Play";
+        playBtn.onclick = play;
+        playBtn.style = "margin-right: 10px;";
+
+        let pauseBtn = document.createElement("button");
+        pauseBtn.innerText = "⏸ Pause";
+        pauseBtn.onclick = pause;
+
+        // Container
+        let container = document.createElement("div");
+        container.style = "padding: 10px;";
+        container.appendChild(slider);
+        container.appendChild(label);
+        container.appendChild(playBtn);
+        container.appendChild(pauseBtn);
+
+        document.body.insertBefore(container, document.body.firstChild);
+        updateNodes(0);
+    }}
+
+    window.addEventListener('load', setupControls);
+    </script>
+    """
+    # Inject JS before </body>
+    html = html.replace("</body>", js_script + "\n</body>")
+
+    # Save updated HTML
+    with open("network_simulation.html", "w") as f:
+        f.write(html)
+
+    print("✅ Interactive simulation saved to network_simulation.html")
+
+def git_simulation(model):
+    import pandas as pd
+    import networkx as nx
+    import matplotlib.pyplot as plt
+    import matplotlib.animation as animation
+    from metastasisModel import MetastasisModel
+
+    df = pd.read_csv('gephi_data/timeseries.csv')
+    timestamps = df['Timestamp']
+    df_states = df.drop(columns='Timestamp')
+
+    G = model.model.interaction_graph
+
+    pos = nx.kamada_kawai_layout(G) 
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    for node, edge, data in G.edges(data=True):
+        if data['sign'] > 0:
+            G.edges[node, edge]['sign'] = 1
+        else:
+            G.edges[node, edge]['color'] = -1
+    edge_colors = ['green' if G.edges[node, edge]['sign'] > 0 else 'red' for node, edge in G.edges()]
+
+
+    def update(frame):
+        ax.clear()
+        state = df_states.iloc[frame]
+        colors = ['limegreen' if state[str(n)] == 1 else 'lightgray' for n in G.nodes]
+        
+        nx.draw(
+            G, pos, ax=ax, with_labels=True, node_color=colors,
+            node_size=800, font_size=10, edge_color=edge_colors
+        )
+        ax.set_title(f"Network State at Timestamp {timestamps[frame]}", fontsize=14)
+
+
+    ani = animation.FuncAnimation(fig, update, frames=len(df_states), interval=1000, repeat=True)
+    plt.tight_layout()
+    # save the animation as a gif
+    ani.save('network_animation.gif', writer='pillow', fps=1)
+    # plt.show()

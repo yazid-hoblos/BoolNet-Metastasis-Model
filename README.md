@@ -47,7 +47,7 @@ We note that we had to modify some of BooN functions for our analysis. Most nota
 
 ### Interactions Network Visualization
 
-Besides the defined logical rules, the interaction graph provides a useful visualization of the studied model. Thus, we present multiple options for visualization, most notably the interactive HTML option [interactive_influence_network](plots/reduced_model_interaction_graph.html).
+Besides the defined logical rules, the interaction graph provides a useful visualization of the studied model. Thus, we present multiple options for visualization, most notably the interactive HTML option [interactive_influence_network](plots/reduced_model_interactive_interactions_network.html).
 
 In the networks below, we highlight input nodes in yellow and phenotypes in grey. 
 
@@ -63,6 +63,10 @@ We highlight below the 9 stable states identified for both the full and reduced 
 ![heatmap](plots/full_model_stable_states_heatmap.png)
 
 ![reduced_heatmap](plots/reduced_model_reordered_heatmap.png) 
+
+We highlight below a simulation of how one stable state is reached:
+
+![simulation](plots/network_animation.gif)
 
 ## Extensions
 
